@@ -10,47 +10,47 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
-    .dash-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 60px); }
-    .dash-sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 30px 16px; }
-    .dash-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); color: var(--text2); font-size: 14px; font-weight: 500; margin-bottom: 4px; transition: all var(--transition); }
-    .dash-nav a:hover, .dash-nav a.active { background: var(--bg3); color: var(--text); }
-    .dash-nav a.active { border-left: 2px solid var(--accent); color: var(--accent2); }
-    .dash-main { padding: 40px; overflow-y: auto; }
-    .dash-header { margin-bottom: 36px; }
-    .dash-header h1 { font-family: var(--font-display); font-size: 40px; }
-    .dash-header p { color: var(--text2); margin-top: 6px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
-    .stat-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-    .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; }
-    .stat-value { font-family: var(--font-display); font-size: 40px; line-height: 1; }
-    .stat-sub { font-size: 12px; color: var(--accent2); margin-top: 6px; }
-    .panel { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 32px; }
-    .panel-title { font-family: var(--font-display); font-size: 28px; margin-bottom: 24px; }
-    .upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; cursor: pointer; transition: border-color var(--transition); position: relative; }
-    .upload-area:hover { border-color: var(--accent); }
-    .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-    .upload-area p { color: var(--text2); font-size: 14px; margin-top: 8px; }
-    .upload-preview { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
-    .upload-progress { height: 4px; background: var(--bg4); border-radius: 2px; margin-top: 16px; overflow: hidden; display: none; }
-    .upload-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
-    .products-table { width: 100%; border-collapse: collapse; }
-    .products-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); padding: 10px 16px; border-bottom: 1px solid var(--border); }
-    .products-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
-    .products-table tr:last-child td { border-bottom: none; }
-    .products-table tr:hover td { background: var(--bg4); }
-    .tbl-img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
-    .tbl-actions { display: flex; gap: 8px; }
-    .tbl-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font-body); transition: all var(--transition); }
-    .tbl-edit { background: rgba(0,113,227,0.15); color: var(--accent2); }
-    .tbl-edit:hover { background: rgba(0,113,227,0.3); }
-    .tbl-del { background: rgba(224,49,49,0.1); color: #ff6b6b; }
-    .tbl-del:hover { background: rgba(224,49,49,0.2); }
-    .toggle-feat { width: 40px; height: 22px; background: var(--bg4); border-radius: 11px; border: 1px solid var(--border); cursor: pointer; position: relative; transition: background var(--transition); }
-    .toggle-feat.on { background: var(--accent); border-color: var(--accent); }
-    .toggle-feat::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: transform var(--transition); }
-    .toggle-feat.on::after { transform: translateX(18px); }
-    @media (max-width: 900px) { .dash-layout { grid-template-columns: 1fr; } .dash-sidebar { display: none; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .dash-main { padding: 20px; } }
+    .dash-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px)}
+    .dash-sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:24px 14px}
+    .dash-nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);color:var(--text2);font-size:14px;font-weight:500;margin-bottom:4px;transition:all var(--transition);cursor:pointer}
+    .dash-nav a:hover,.dash-nav a.active{background:var(--bg3);color:var(--text)}
+    .dash-nav a.active{border-left:2px solid var(--accent);color:var(--accent2)}
+    .dash-main{padding:40px;overflow-y:auto}
+    .dash-header{margin-bottom:32px}
+    .dash-header h1{font-family:var(--font-display);font-size:40px}
+    .dash-header p{color:var(--text2);margin-top:4px}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px}
+    .stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+    .stat-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+    .stat-value{font-family:var(--font-display);font-size:38px;line-height:1}
+    .panel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:28px}
+    .panel-title{font-family:var(--font-display);font-size:26px;margin-bottom:20px}
+    .upload-area{border:2px dashed rgba(0,113,227,.3);border-radius:var(--radius);padding:36px;text-align:center;cursor:pointer;transition:all var(--transition);position:relative;background:rgba(0,113,227,.03)}
+    .upload-area:hover{border-color:var(--accent);background:rgba(0,113,227,.07)}
+    .upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .upload-preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .preview-img{width:76px;height:76px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+    .upload-progress{height:6px;background:var(--bg4);border-radius:3px;margin-top:14px;overflow:hidden;display:none}
+    .upload-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .4s;border-radius:3px}
+    .upload-status{font-size:13px;color:var(--accent2);margin-top:8px;display:none;text-align:center}
+    .products-table{width:100%;border-collapse:collapse}
+    .products-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:10px 14px;border-bottom:1px solid var(--border)}
+    .products-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+    .products-table tr:last-child td{border-bottom:none}
+    .products-table tr:hover td{background:var(--bg4)}
+    .tbl-img{width:42px;height:42px;object-fit:cover;border-radius:6px;background:var(--bg4)}
+    .tbl-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font-body);transition:all var(--transition)}
+    .tbl-del{background:rgba(224,49,49,.1);color:#ff6b6b}
+    .tbl-del:hover{background:rgba(224,49,49,.25)}
+    .toggle-feat{width:38px;height:20px;background:var(--bg4);border-radius:10px;border:1px solid var(--border);cursor:pointer;position:relative;transition:background var(--transition);flex-shrink:0}
+    .toggle-feat.on{background:var(--accent);border-color:var(--accent)}
+    .toggle-feat::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform var(--transition);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+    .toggle-feat.on::after{transform:translateX(18px)}
+    .success-msg{background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#00c864;display:none;margin-bottom:14px}
+    .error-msg{background:rgba(224,49,49,.1);border:1px solid rgba(224,49,49,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#ff6b6b;display:none;margin-bottom:14px}
+    .status-select{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:12px;padding:5px 10px;border-radius:6px;outline:none;cursor:pointer}
+    .status-select:focus{border-color:var(--accent)}
+    @media(max-width:900px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-main{padding:20px}}
   </style>
 </head>
 <body>
@@ -58,99 +58,103 @@
   <div class="nav-top">
     <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
     <div class="nav-actions">
-      <a href="index.html" class="nav-btn">← Back to Store</a>
-      <button class="nav-btn" onclick="doLogout()" style="cursor:pointer;background:none;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px">Sign Out</button>
+      <a href="index.html" class="nav-btn">← Store</a>
+      <span class="nav-btn" id="dashUserName" style="color:var(--accent2);font-size:13px"></span>
+      <button class="nav-btn" onclick="auth.signOut().then(()=>window.location.href='index.html')" style="cursor:pointer;background:none;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px;padding:8px 14px">Sign Out</button>
     </div>
   </div>
 </header>
 
-<div class="dash-layout">
+<div id="authLoading" style="display:flex;align-items:center;justify-content:center;min-height:80vh;flex-direction:column;gap:16px"><div class="spinner"></div><p style="color:var(--text2)">Checking access...</p></div>
+
+<div class="dash-layout" id="dashContent" style="display:none">
   <aside class="dash-sidebar">
     <nav class="dash-nav">
-      <a href="#overview" class="active" onclick="showSection('overview',this)">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Overview
-      </a>
-      <a href="#add-product" onclick="showSection('add-product',this)">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-        Add Product
-      </a>
-      <a href="#products" onclick="showSection('products',this)">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-        Products
-      </a>
-      <a href="#orders" onclick="showSection('orders',this)">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Orders
-      </a>
+      <a class="active" onclick="showSection('overview',this)">📊 Overview</a>
+      <a onclick="showSection('add-product',this)">➕ Add Product</a>
+      <a onclick="showSection('products',this)">📦 Products</a>
+      <a onclick="showSection('orders',this)">🧾 Orders</a>
     </nav>
   </aside>
 
   <main class="dash-main">
+
     <!-- OVERVIEW -->
     <div id="section-overview">
-      <div class="dash-header">
-        <h1>Dashboard</h1>
-        <p>Welcome back, DEVGODSWILL 👋</p>
-      </div>
+      <div class="dash-header"><h1>Dashboard</h1><p id="welcomeMsg">Welcome back 👋</p></div>
       <div class="stats-grid">
-        <div class="stat-card"><p class="stat-label">Total Products</p><p class="stat-value" id="statProducts">—</p></div>
-        <div class="stat-card"><p class="stat-label">Total Orders</p><p class="stat-value" id="statOrders">—</p></div>
-        <div class="stat-card"><p class="stat-label">Total Revenue</p><p class="stat-value" id="statRevenue">—</p></div>
+        <div class="stat-card"><p class="stat-label">Products</p><p class="stat-value" id="statProducts">—</p></div>
+        <div class="stat-card"><p class="stat-label">Orders</p><p class="stat-value" id="statOrders">—</p></div>
+        <div class="stat-card"><p class="stat-label">Revenue</p><p class="stat-value" id="statRevenue">—</p></div>
         <div class="stat-card"><p class="stat-label">Customers</p><p class="stat-value" id="statCustomers">—</p></div>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Quick Actions</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showSection('add-product',null)">+ Add Product</button>
+          <button class="btn btn-outline" onclick="showSection('products',null)">View Products</button>
+          <button class="btn btn-outline" onclick="showSection('orders',null)">View Orders</button>
+        </div>
       </div>
     </div>
 
     <!-- ADD PRODUCT -->
     <div id="section-add-product" style="display:none">
       <div class="dash-header"><h1>Add Product</h1><p>Upload a new product to your store</p></div>
+      <div id="addSuccessMsg" class="success-msg"></div>
+      <div id="addErrorMsg" class="error-msg"></div>
       <div class="panel">
         <h2 class="panel-title">Product Images</h2>
-        <div class="upload-area" id="uploadArea">
+        <div class="upload-area">
           <input type="file" id="imgFiles" accept="image/*" multiple onchange="previewImages(this)"/>
-          <svg width="40" height="40" fill="none" stroke="var(--text2)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <p>Click or drag to upload product images</p>
+          <div style="font-size:34px;margin-bottom:8px">📸</div>
+          <p><strong>Click to upload images</strong> or drag & drop</p>
+          <p style="font-size:12px;color:var(--text2);margin-top:4px">JPG, PNG, WEBP supported — multiple allowed</p>
         </div>
         <div class="upload-preview" id="uploadPreview"></div>
         <div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
+        <p class="upload-status" id="uploadStatus"></p>
+        <p style="font-size:12px;color:var(--text2);margin-top:10px">💡 No image? Leave empty — placeholder used automatically.</p>
       </div>
-
       <div class="panel">
         <h2 class="panel-title">Product Details</h2>
         <div class="form-group"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g. iPhone 15 Pro Max"/></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="form-group"><label>Price (₦) *</label><input type="number" id="pPrice" placeholder="25000"/></div>
-          <div class="form-group"><label>Old Price (₦) — for discount</label><input type="number" id="pOldPrice" placeholder="30000"/></div>
+          <div class="form-group"><label>Price (₦) *</label><input type="number" id="pPrice" placeholder="25000" min="0"/></div>
+          <div class="form-group"><label>Old Price (₦) — shows discount badge</label><input type="number" id="pOldPrice" placeholder="30000 (optional)" min="0"/></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group"><label>Category *</label>
             <select id="pCategory">
               <option value="">Select Category</option>
-              <option>Electronics</option><option>Fashion</option><option>Home & Living</option>
-              <option>Beauty</option><option>Sports</option><option>Books</option><option>Toys</option><option>Food</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home & Living">Home & Living</option>
+              <option value="Beauty">Beauty</option>
+              <option value="Sports">Sports</option>
+              <option value="Books">Books</option>
+              <option value="Toys">Toys</option>
+              <option value="Food">Food</option>
             </select>
           </div>
-          <div class="form-group"><label>Brand</label><input type="text" id="pBrand" placeholder="e.g. Apple, Samsung"/></div>
+          <div class="form-group"><label>Brand (optional)</label><input type="text" id="pBrand" placeholder="Apple, Samsung, Nike..."/></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="pDesc" placeholder="Describe this product..."></textarea></div>
-        <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px">
-          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
-            <input type="checkbox" id="pFeatured" style="display:none"/>
-            <div class="toggle-feat" id="featToggle" onclick="toggleFeatured()"></div>
-            Mark as Featured Product
-          </label>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+          <div class="toggle-feat" id="featToggle" onclick="toggleFeatured()"></div>
+          <span style="font-size:14px;color:var(--text2)">Featured on homepage</span>
         </div>
-        <button class="btn btn-primary" onclick="addProduct()" id="addProductBtn" style="min-width:180px">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-          Add Product
-        </button>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="addProduct()" id="addProductBtn" style="min-width:180px;padding:14px 24px;font-size:15px">+ Add Product</button>
+          <button class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+        </div>
       </div>
     </div>
 
     <!-- PRODUCTS LIST -->
     <div id="section-products" style="display:none">
-      <div class="dash-header" style="display:flex;align-items:center;justify-content:space-between">
-        <div><h1>Products</h1><p>Manage your product catalogue</p></div>
+      <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px">
+        <div><h1>Products</h1><p>Manage your catalogue</p></div>
         <button class="btn btn-primary" onclick="showSection('add-product',null)">+ Add New</button>
       </div>
       <div class="panel" style="padding:0;overflow:hidden">
@@ -160,11 +164,12 @@
 
     <!-- ORDERS -->
     <div id="section-orders" style="display:none">
-      <div class="dash-header"><h1>Orders</h1><p>View all customer orders</p></div>
+      <div class="dash-header"><h1>Orders</h1><p>View and update order statuses</p></div>
       <div class="panel" style="padding:0;overflow:hidden">
         <div id="ordersTableWrap"><div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div></div>
       </div>
     </div>
+
   </main>
 </div>
 
@@ -173,19 +178,22 @@
 <script>
   const CLOUDINARY_CLOUD = 'dzxckgbzp';
   const CLOUDINARY_PRESET = 'Odegaard';
-  let uploadedImages = [];
   let featuredOn = false;
 
-  // Guard: admin only
+  // Auth guard
   auth.onAuthStateChanged(user => {
+    const loading = document.getElementById('authLoading');
+    const content = document.getElementById('dashContent');
     if (!user) { window.location.href = 'auth.html'; return; }
     if (user.email !== ADMIN_EMAIL) { window.location.href = 'index.html'; return; }
+    loading.style.display = 'none';
+    content.style.display = 'grid';
+    const nameEl = document.getElementById('dashUserName');
+    if (nameEl) nameEl.textContent = user.displayName || user.email.split('@')[0];
+    const wEl = document.getElementById('welcomeMsg');
+    if (wEl) wEl.textContent = 'Welcome back, ' + (user.displayName || 'Admin') + ' 👋';
     loadStats();
   });
-
-  function doLogout() {
-    auth.signOut().then(() => window.location.href = 'index.html');
-  }
 
   function showSection(name, el) {
     document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
@@ -194,13 +202,11 @@
     if (el) el.classList.add('active');
     if (name === 'products') loadProductsTable();
     if (name === 'orders') loadOrdersTable();
-    return false;
   }
 
   function toggleFeatured() {
     featuredOn = !featuredOn;
     document.getElementById('featToggle').classList.toggle('on', featuredOn);
-    document.getElementById('pFeatured').checked = featuredOn;
   }
 
   function previewImages(input) {
@@ -223,6 +229,7 @@
     fd.append('file', file);
     fd.append('upload_preset', CLOUDINARY_PRESET);
     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: 'POST', body: fd });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Upload failed'); }
     const data = await res.json();
     return data.secure_url;
   }
@@ -234,31 +241,41 @@
     const category = document.getElementById('pCategory').value;
     const brand = document.getElementById('pBrand').value.trim();
     const description = document.getElementById('pDesc').value.trim();
-    const featured = featuredOn;
     const files = document.getElementById('imgFiles').files;
 
-    if (!name || !price || !category) { showToast('Please fill in required fields', 'error'); return; }
+    document.getElementById('addErrorMsg').style.display = 'none';
+    document.getElementById('addSuccessMsg').style.display = 'none';
+
+    if (!name) { showFormError('Please enter a product name'); return; }
+    if (!price || price <= 0) { showFormError('Please enter a valid price'); return; }
+    if (!category) { showFormError('Please select a category'); return; }
 
     const btn = document.getElementById('addProductBtn');
-    btn.disabled = true; btn.textContent = 'Uploading images...';
+    btn.disabled = true; btn.textContent = 'Working...';
 
     const progress = document.getElementById('uploadProgress');
     const bar = document.getElementById('uploadBar');
+    const status = document.getElementById('uploadStatus');
     progress.style.display = 'block';
+    status.style.display = 'block';
 
     try {
       const imageUrls = [];
       for (let i = 0; i < files.length; i++) {
-        bar.style.width = `${((i + 1) / Math.max(files.length, 1)) * 60}%`;
+        status.textContent = `Uploading image ${i+1} of ${files.length}...`;
+        bar.style.width = `${((i+1)/Math.max(files.length,1))*70}%`;
         const url = await uploadToCloudinary(files[i]);
         imageUrls.push(url);
       }
 
-      bar.style.width = '80%';
-      btn.textContent = 'Saving product...';
+      bar.style.width = '85%';
+      status.textContent = 'Saving to database...';
 
       await db.collection('products').add({
-        name, price, oldPrice, category, brand, description, featured,
+        name, price, oldPrice, category,
+        brand: brand || null,
+        description: description || null,
+        featured: featuredOn,
         images: imageUrls,
         image: imageUrls[0] || '',
         inStock: true,
@@ -266,108 +283,122 @@
       });
 
       bar.style.width = '100%';
-      showToast('Product added successfully! 🎉');
+      const sEl = document.getElementById('addSuccessMsg');
+      sEl.textContent = `✅ "${name}" added successfully!`;
+      sEl.style.display = 'block';
+      sEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      // Reset form
-      setTimeout(() => {
-        ['pName','pPrice','pOldPrice','pBrand','pDesc'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('pCategory').value = '';
-        document.getElementById('uploadPreview').innerHTML = '';
-        document.getElementById('imgFiles').value = '';
-        progress.style.display = 'none';
-        bar.style.width = '0%';
-        featuredOn = false;
-        document.getElementById('featToggle').classList.remove('on');
-        btn.disabled = false;
-        btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg> Add Product';
-      }, 1000);
-    } catch (err) {
-      showToast('Error: ' + err.message, 'error');
-      btn.disabled = false;
-      btn.textContent = 'Add Product';
+      setTimeout(() => { resetForm(); progress.style.display = 'none'; status.style.display = 'none'; bar.style.width = '0%'; }, 2000);
+      loadStats();
+    } catch(err) {
+      showFormError('Error: ' + err.message);
       progress.style.display = 'none';
+      status.style.display = 'none';
     }
+    btn.disabled = false; btn.textContent = '+ Add Product';
+  }
+
+  function showFormError(msg) {
+    const el = document.getElementById('addErrorMsg');
+    el.textContent = '❌ ' + msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function resetForm() {
+    ['pName','pPrice','pOldPrice','pBrand','pDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pCategory').value = '';
+    document.getElementById('uploadPreview').innerHTML = '';
+    document.getElementById('imgFiles').value = '';
+    document.getElementById('addSuccessMsg').style.display = 'none';
+    document.getElementById('addErrorMsg').style.display = 'none';
+    featuredOn = false;
+    document.getElementById('featToggle').classList.remove('on');
   }
 
   async function loadStats() {
     try {
-      const [products, orders, users] = await Promise.all([
-        db.collection('products').get(),
-        db.collection('orders').get(),
-        db.collection('users').get()
-      ]);
-      const revenue = orders.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
-      document.getElementById('statProducts').textContent = products.size;
-      document.getElementById('statOrders').textContent = orders.size;
-      document.getElementById('statRevenue').textContent = '₦' + (revenue / 1000).toFixed(0) + 'k';
-      document.getElementById('statCustomers').textContent = users.size;
-    } catch (err) { console.error(err); }
+      const [p, o, u] = await Promise.all([db.collection('products').get(), db.collection('orders').get(), db.collection('users').get()]);
+      const revenue = o.docs.reduce((s,d) => s + (d.data().total||0), 0);
+      document.getElementById('statProducts').textContent = p.size;
+      document.getElementById('statOrders').textContent = o.size;
+      document.getElementById('statRevenue').textContent = '₦' + Math.round(revenue/1000) + 'k';
+      document.getElementById('statCustomers').textContent = u.size;
+    } catch(e) {}
   }
 
   async function loadProductsTable() {
     const wrap = document.getElementById('productsTableWrap');
+    wrap.innerHTML = '<div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div>';
     try {
-      const snap = await db.collection('products').orderBy('createdAt', 'desc').get();
-      if (snap.empty) { wrap.innerHTML = '<div class="empty-state" style="padding:60px"><h3>No products yet</h3></div>'; return; }
-      wrap.innerHTML = `
-        <table class="products-table">
-          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${snap.docs.map(doc => {
-              const p = doc.data();
-              return `<tr>
-                <td><img class="tbl-img" src="${p.image || 'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'"/></td>
-                <td style="max-width:200px">${p.name}</td>
-                <td>${p.category || '—'}</td>
-                <td>₦${Number(p.price).toLocaleString()}</td>
-                <td><button class="toggle-feat ${p.featured ? 'on' : ''}" onclick="toggleProductFeatured('${doc.id}', ${!p.featured}, this)"></button></td>
-                <td><div class="tbl-actions">
-                  <button class="tbl-btn tbl-del" onclick="deleteProduct('${doc.id}', this)">Delete</button>
-                </div></td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>`;
-    } catch (err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+      const snap = await db.collection('products').orderBy('createdAt','desc').get();
+      if (snap.empty) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>No products yet</h3><p>Add your first product!</p></div>`; return; }
+      wrap.innerHTML = `<table class="products-table">
+        <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead>
+        <tbody>${snap.docs.map(doc => {
+          const p = doc.data();
+          return `<tr>
+            <td><img class="tbl-img" src="${p.image||'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'"/></td>
+            <td style="max-width:180px;font-weight:500">${p.name}</td>
+            <td style="color:var(--text2)">${p.category||'—'}</td>
+            <td style="font-weight:700">₦${Number(p.price).toLocaleString()}</td>
+            <td><div class="toggle-feat ${p.featured?'on':''}" onclick="toggleFeat('${doc.id}',${!p.featured},this)"></div></td>
+            <td><button class="tbl-btn tbl-del" onclick="delProduct('${doc.id}','${p.name.replace(/'/g,"\\'")}',this)">Delete</button></td>
+          </tr>`;
+        }).join('')}</tbody></table>`;
+    } catch(err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
   }
 
-  async function toggleProductFeatured(id, val, btn) {
+  async function toggleFeat(id, val, btn) {
     await db.collection('products').doc(id).update({ featured: val });
     btn.classList.toggle('on', val);
+    showToast(val ? 'Marked as featured ⭐' : 'Removed from featured');
   }
 
-  async function deleteProduct(id, btn) {
-    if (!confirm('Delete this product? This cannot be undone.')) return;
-    btn.textContent = '...';
+  async function delProduct(id, name, btn) {
+    if (!confirm(`Delete "${name}"?`)) return;
+    btn.textContent = '...'; btn.disabled = true;
     await db.collection('products').doc(id).delete();
-    showToast('Product deleted');
-    loadProductsTable();
+    showToast(`"${name}" deleted`);
+    loadProductsTable(); loadStats();
   }
 
   async function loadOrdersTable() {
     const wrap = document.getElementById('ordersTableWrap');
+    wrap.innerHTML = '<div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div>';
     try {
-      const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
-      if (snap.empty) { wrap.innerHTML = '<div class="empty-state" style="padding:60px"><h3>No orders yet</h3></div>'; return; }
-      wrap.innerHTML = `
-        <table class="products-table">
-          <thead><tr><th>Ref</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
-          <tbody>
-            ${snap.docs.map(doc => {
-              const o = doc.data();
-              const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString() : '—';
-              return `<tr>
-                <td style="font-size:11px;font-family:monospace">${o.paystackRef || doc.id.slice(0,8)}</td>
-                <td>${o.name || o.email || '—'}</td>
-                <td>${o.items?.length || 0} item(s)</td>
-                <td>₦${Number(o.total).toLocaleString()}</td>
-                <td><span style="background:rgba(0,212,255,0.1);color:var(--accent2);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700">${o.status || 'paid'}</span></td>
-                <td style="font-size:12px;color:var(--text2)">${date}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>`;
-    } catch (err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+      const snap = await db.collection('orders').orderBy('createdAt','desc').get();
+      if (snap.empty) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>No orders yet</h3></div>`; return; }
+      wrap.innerHTML = `<table class="products-table">
+        <thead><tr><th>Ref</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${snap.docs.map(doc => {
+          const o = doc.data();
+          const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : '—';
+          return `<tr>
+            <td style="font-size:11px;font-family:monospace;color:var(--text2)">${(o.paystackRef||doc.id).slice(0,12)}...</td>
+            <td><p style="font-weight:500">${o.name||'—'}</p><p style="font-size:11px;color:var(--text2)">${o.email||''}</p></td>
+            <td>${o.items?.length||0} item(s)</td>
+            <td style="font-weight:700">₦${Number(o.total).toLocaleString()}</td>
+            <td>
+              <select class="status-select" onchange="updateOrderStatus('${doc.id}',this.value)">
+                <option value="paid" ${o.status==='paid'?'selected':''}>Paid</option>
+                <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
+                <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped 🚚</option>
+                <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered 📦</option>
+                <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+              </select>
+            </td>
+            <td style="font-size:12px;color:var(--text2)">${date}</td>
+          </tr>`;
+        }).join('')}</tbody></table>`;
+    } catch(err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+  }
+
+  async function updateOrderStatus(id, status) {
+    try {
+      await db.collection('orders').doc(id).update({ status });
+      showToast(`Order status updated to "${status}" ✅`);
+    } catch(err) { showToast('Error: ' + err.message, 'error'); }
   }
 </script>
 </body>
