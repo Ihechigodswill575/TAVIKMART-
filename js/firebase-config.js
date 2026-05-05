@@ -16,18 +16,27 @@ const db = firebase.firestore();
 
 const ADMIN_EMAIL = "ihechigodswill575@gmail.com";
 
-// Auth state listener — runs on every page
 auth.onAuthStateChanged((user) => {
   const authBtn = document.getElementById('authBtn');
   const authLabel = document.getElementById('authLabel');
   const adminBtn = document.getElementById('adminBtn');
+  const accountBtn = document.getElementById('accountBtn');
 
   if (user) {
+    // Show first name
+    const name = user.displayName || user.email.split('@')[0];
+    const firstName = name.split(' ')[0];
+
     if (authBtn) {
-      authBtn.href = "orders.html";
-      if (authLabel) authLabel.textContent = user.displayName || "Account";
+      authBtn.href = "account.html";
+      if (authLabel) authLabel.textContent = firstName;
     }
-    // Show admin button only for admin
+    if (accountBtn) {
+      accountBtn.style.display = 'flex';
+      const lbl = document.getElementById('accountLabel');
+      if (lbl) lbl.textContent = firstName;
+    }
+    // Admin button only for admin
     if (adminBtn && user.email === ADMIN_EMAIL) {
       adminBtn.style.display = 'flex';
     }
@@ -36,6 +45,7 @@ auth.onAuthStateChanged((user) => {
       authBtn.href = "auth.html";
       if (authLabel) authLabel.textContent = "Sign In";
     }
+    if (accountBtn) accountBtn.style.display = 'none';
     if (adminBtn) adminBtn.style.display = 'none';
   }
 });
