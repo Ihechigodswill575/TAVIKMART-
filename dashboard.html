@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <style>
+    .dash-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 60px); }
+    .dash-sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 30px 16px; }
+    .dash-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); color: var(--text2); font-size: 14px; font-weight: 500; margin-bottom: 4px; transition: all var(--transition); }
+    .dash-nav a:hover, .dash-nav a.active { background: var(--bg3); color: var(--text); }
+    .dash-nav a.active { border-left: 2px solid var(--accent); color: var(--accent2); }
+    .dash-main { padding: 40px; overflow-y: auto; }
+    .dash-header { margin-bottom: 36px; }
+    .dash-header h1 { font-family: var(--font-display); font-size: 40px; }
+    .dash-header p { color: var(--text2); margin-top: 6px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+    .stat-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; }
+    .stat-value { font-family: var(--font-display); font-size: 40px; line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--accent2); margin-top: 6px; }
+    .panel { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 32px; }
+    .panel-title { font-family: var(--font-display); font-size: 28px; margin-bottom: 24px; }
+    .upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; cursor: pointer; transition: border-color var(--transition); position: relative; }
+    .upload-area:hover { border-color: var(--accent); }
+    .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-area p { color: var(--text2); font-size: 14px; margin-top: 8px; }
+    .upload-preview { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+    .upload-progress { height: 4px; background: var(--bg4); border-radius: 2px; margin-top: 16px; overflow: hidden; display: none; }
+    .upload-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+    .products-table { width: 100%; border-collapse: collapse; }
+    .products-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    .products-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+    .products-table tr:last-child td { border-bottom: none; }
+    .products-table tr:hover td { background: var(--bg4); }
+    .tbl-img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+    .tbl-actions { display: flex; gap: 8px; }
+    .tbl-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font-body); transition: all var(--transition); }
+    .tbl-edit { background: rgba(0,113,227,0.15); color: var(--accent2); }
+    .tbl-edit:hover { background: rgba(0,113,227,0.3); }
+    .tbl-del { background: rgba(224,49,49,0.1); color: #ff6b6b; }
+    .tbl-del:hover { background: rgba(224,49,49,0.2); }
+    .toggle-feat { width: 40px; height: 22px; background: var(--bg4); border-radius: 11px; border: 1px solid var(--border); cursor: pointer; position: relative; transition: background var(--transition); }
+    .toggle-feat.on { background: var(--accent); border-color: var(--accent); }
+    .toggle-feat::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: transform var(--transition); }
+    .toggle-feat.on::after { transform: translateX(18px); }
+    @media (max-width: 900px) { .dash-layout { grid-template-columns: 1fr; } .dash-sidebar { display: none; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .dash-main { padding: 20px; } }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn">← Back to Store</a>
+      <button class="nav-btn" onclick="doLogout()" style="cursor:pointer;background:none;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<div class="dash-layout">
+  <aside class="dash-sidebar">
+    <nav class="dash-nav">
+      <a href="#overview" class="active" onclick="showSection('overview',this)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a href="#add-product" onclick="showSection('add-product',this)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        Add Product
+      </a>
+      <a href="#products" onclick="showSection('products',this)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+        Products
+      </a>
+      <a href="#orders" onclick="showSection('orders',this)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Orders
+      </a>
+    </nav>
+  </aside>
+
+  <main class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="section-overview">
+      <div class="dash-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, DEVGODSWILL 👋</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><p class="stat-label">Total Products</p><p class="stat-value" id="statProducts">—</p></div>
+        <div class="stat-card"><p class="stat-label">Total Orders</p><p class="stat-value" id="statOrders">—</p></div>
+        <div class="stat-card"><p class="stat-label">Total Revenue</p><p class="stat-value" id="statRevenue">—</p></div>
+        <div class="stat-card"><p class="stat-label">Customers</p><p class="stat-value" id="statCustomers">—</p></div>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div id="section-add-product" style="display:none">
+      <div class="dash-header"><h1>Add Product</h1><p>Upload a new product to your store</p></div>
+      <div class="panel">
+        <h2 class="panel-title">Product Images</h2>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="imgFiles" accept="image/*" multiple onchange="previewImages(this)"/>
+          <svg width="40" height="40" fill="none" stroke="var(--text2)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Click or drag to upload product images</p>
+        </div>
+        <div class="upload-preview" id="uploadPreview"></div>
+        <div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">Product Details</h2>
+        <div class="form-group"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g. iPhone 15 Pro Max"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group"><label>Price (₦) *</label><input type="number" id="pPrice" placeholder="25000"/></div>
+          <div class="form-group"><label>Old Price (₦) — for discount</label><input type="number" id="pOldPrice" placeholder="30000"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group"><label>Category *</label>
+            <select id="pCategory">
+              <option value="">Select Category</option>
+              <option>Electronics</option><option>Fashion</option><option>Home & Living</option>
+              <option>Beauty</option><option>Sports</option><option>Books</option><option>Toys</option><option>Food</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Brand</label><input type="text" id="pBrand" placeholder="e.g. Apple, Samsung"/></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="pDesc" placeholder="Describe this product..."></textarea></div>
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+            <input type="checkbox" id="pFeatured" style="display:none"/>
+            <div class="toggle-feat" id="featToggle" onclick="toggleFeatured()"></div>
+            Mark as Featured Product
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="addProduct()" id="addProductBtn" style="min-width:180px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          Add Product
+        </button>
+      </div>
+    </div>
+
+    <!-- PRODUCTS LIST -->
+    <div id="section-products" style="display:none">
+      <div class="dash-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div><h1>Products</h1><p>Manage your product catalogue</p></div>
+        <button class="btn btn-primary" onclick="showSection('add-product',null)">+ Add New</button>
+      </div>
+      <div class="panel" style="padding:0;overflow:hidden">
+        <div id="productsTableWrap"><div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="section-orders" style="display:none">
+      <div class="dash-header"><h1>Orders</h1><p>View all customer orders</p></div>
+      <div class="panel" style="padding:0;overflow:hidden">
+        <div id="ordersTableWrap"><div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  const CLOUDINARY_CLOUD = 'dzxckgbzp';
+  const CLOUDINARY_PRESET = 'Odegaard';
+  let uploadedImages = [];
+  let featuredOn = false;
+
+  // Guard: admin only
+  auth.onAuthStateChanged(user => {
+    if (!user) { window.location.href = 'auth.html'; return; }
+    if (user.email !== ADMIN_EMAIL) { window.location.href = 'index.html'; return; }
+    loadStats();
+  });
+
+  function doLogout() {
+    auth.signOut().then(() => window.location.href = 'index.html');
+  }
+
+  function showSection(name, el) {
+    document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+    document.getElementById('section-' + name).style.display = 'block';
+    document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (name === 'products') loadProductsTable();
+    if (name === 'orders') loadOrdersTable();
+    return false;
+  }
+
+  function toggleFeatured() {
+    featuredOn = !featuredOn;
+    document.getElementById('featToggle').classList.toggle('on', featuredOn);
+    document.getElementById('pFeatured').checked = featuredOn;
+  }
+
+  function previewImages(input) {
+    const preview = document.getElementById('uploadPreview');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'preview-img';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadToCloudinary(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: 'POST', body: fd });
+    const data = await res.json();
+    return data.secure_url;
+  }
+
+  async function addProduct() {
+    const name = document.getElementById('pName').value.trim();
+    const price = parseFloat(document.getElementById('pPrice').value);
+    const oldPrice = parseFloat(document.getElementById('pOldPrice').value) || null;
+    const category = document.getElementById('pCategory').value;
+    const brand = document.getElementById('pBrand').value.trim();
+    const description = document.getElementById('pDesc').value.trim();
+    const featured = featuredOn;
+    const files = document.getElementById('imgFiles').files;
+
+    if (!name || !price || !category) { showToast('Please fill in required fields', 'error'); return; }
+
+    const btn = document.getElementById('addProductBtn');
+    btn.disabled = true; btn.textContent = 'Uploading images...';
+
+    const progress = document.getElementById('uploadProgress');
+    const bar = document.getElementById('uploadBar');
+    progress.style.display = 'block';
+
+    try {
+      const imageUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        bar.style.width = `${((i + 1) / Math.max(files.length, 1)) * 60}%`;
+        const url = await uploadToCloudinary(files[i]);
+        imageUrls.push(url);
+      }
+
+      bar.style.width = '80%';
+      btn.textContent = 'Saving product...';
+
+      await db.collection('products').add({
+        name, price, oldPrice, category, brand, description, featured,
+        images: imageUrls,
+        image: imageUrls[0] || '',
+        inStock: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      bar.style.width = '100%';
+      showToast('Product added successfully! 🎉');
+
+      // Reset form
+      setTimeout(() => {
+        ['pName','pPrice','pOldPrice','pBrand','pDesc'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('pCategory').value = '';
+        document.getElementById('uploadPreview').innerHTML = '';
+        document.getElementById('imgFiles').value = '';
+        progress.style.display = 'none';
+        bar.style.width = '0%';
+        featuredOn = false;
+        document.getElementById('featToggle').classList.remove('on');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg> Add Product';
+      }, 1000);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Add Product';
+      progress.style.display = 'none';
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const [products, orders, users] = await Promise.all([
+        db.collection('products').get(),
+        db.collection('orders').get(),
+        db.collection('users').get()
+      ]);
+      const revenue = orders.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
+      document.getElementById('statProducts').textContent = products.size;
+      document.getElementById('statOrders').textContent = orders.size;
+      document.getElementById('statRevenue').textContent = '₦' + (revenue / 1000).toFixed(0) + 'k';
+      document.getElementById('statCustomers').textContent = users.size;
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadProductsTable() {
+    const wrap = document.getElementById('productsTableWrap');
+    try {
+      const snap = await db.collection('products').orderBy('createdAt', 'desc').get();
+      if (snap.empty) { wrap.innerHTML = '<div class="empty-state" style="padding:60px"><h3>No products yet</h3></div>'; return; }
+      wrap.innerHTML = `
+        <table class="products-table">
+          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${snap.docs.map(doc => {
+              const p = doc.data();
+              return `<tr>
+                <td><img class="tbl-img" src="${p.image || 'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'"/></td>
+                <td style="max-width:200px">${p.name}</td>
+                <td>${p.category || '—'}</td>
+                <td>₦${Number(p.price).toLocaleString()}</td>
+                <td><button class="toggle-feat ${p.featured ? 'on' : ''}" onclick="toggleProductFeatured('${doc.id}', ${!p.featured}, this)"></button></td>
+                <td><div class="tbl-actions">
+                  <button class="tbl-btn tbl-del" onclick="deleteProduct('${doc.id}', this)">Delete</button>
+                </div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    } catch (err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+  }
+
+  async function toggleProductFeatured(id, val, btn) {
+    await db.collection('products').doc(id).update({ featured: val });
+    btn.classList.toggle('on', val);
+  }
+
+  async function deleteProduct(id, btn) {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    btn.textContent = '...';
+    await db.collection('products').doc(id).delete();
+    showToast('Product deleted');
+    loadProductsTable();
+  }
+
+  async function loadOrdersTable() {
+    const wrap = document.getElementById('ordersTableWrap');
+    try {
+      const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+      if (snap.empty) { wrap.innerHTML = '<div class="empty-state" style="padding:60px"><h3>No orders yet</h3></div>'; return; }
+      wrap.innerHTML = `
+        <table class="products-table">
+          <thead><tr><th>Ref</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            ${snap.docs.map(doc => {
+              const o = doc.data();
+              const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString() : '—';
+              return `<tr>
+                <td style="font-size:11px;font-family:monospace">${o.paystackRef || doc.id.slice(0,8)}</td>
+                <td>${o.name || o.email || '—'}</td>
+                <td>${o.items?.length || 0} item(s)</td>
+                <td>₦${Number(o.total).toLocaleString()}</td>
+                <td><span style="background:rgba(0,212,255,0.1);color:var(--accent2);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700">${o.status || 'paid'}</span></td>
+                <td style="font-size:12px;color:var(--text2)">${date}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    } catch (err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+  }
+</script>
+</body>
+</html>
