@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <style>
+    .cart-layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 40px 60px; max-width: 1300px; margin: 0 auto; }
+    .cart-items { display: flex; flex-direction: column; gap: 16px; }
+    .cart-item { display: flex; gap: 20px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color var(--transition); }
+    .cart-item:hover { border-color: rgba(0,113,227,0.3); }
+    .cart-item-img { width: 100px; height: 100px; background: var(--bg4); border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+    .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item-info { flex: 1; }
+    .cart-item-cat { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent2); text-transform: uppercase; margin-bottom: 4px; }
+    .cart-item-name { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+    .cart-item-price { font-size: 18px; font-weight: 700; color: var(--text); }
+    .cart-item-actions { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+    .qty-control { display: flex; align-items: center; background: var(--bg4); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .qty-control button { background: none; border: none; color: var(--text); font-size: 16px; width: 36px; height: 36px; cursor: pointer; transition: background var(--transition); }
+    .qty-control button:hover { background: var(--bg3); }
+    .qty-control span { min-width: 36px; text-align: center; font-size: 14px; font-weight: 600; }
+    .remove-btn { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500; transition: color var(--transition); display: flex; align-items: center; gap: 4px; }
+    .remove-btn:hover { color: #e03131; }
+    .cart-summary { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; height: fit-content; position: sticky; top: 100px; }
+    .summary-title { font-family: var(--font-display); font-size: 28px; margin-bottom: 24px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 14px; }
+    .summary-row span:first-child { color: var(--text2); }
+    .summary-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+    .checkout-btn { width: 100%; padding: 16px; font-size: 16px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; border: none; font-family: var(--font-body); font-weight: 700; cursor: pointer; transition: all var(--transition); box-shadow: 0 0 20px var(--accent-glow); }
+    .checkout-btn:hover { background: var(--accent2); transform: translateY(-2px); }
+    .continue-btn { width: 100%; padding: 12px; font-size: 14px; border-radius: var(--radius-sm); background: transparent; color: var(--text2); border: 1px solid var(--border); font-family: var(--font-body); cursor: pointer; margin-top: 10px; transition: all var(--transition); }
+    .continue-btn:hover { border-color: var(--accent); color: var(--text); }
+    .empty-cart { text-align: center; padding: 80px 40px; }
+    .empty-cart h2 { font-family: var(--font-display); font-size: 40px; margin-bottom: 12px; }
+    .empty-cart p { color: var(--text2); margin-bottom: 28px; }
+    @media (max-width: 900px) { .cart-layout { grid-template-columns: 1fr; padding: 20px; } .cart-summary { position: static; } }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
+    <div class="search-bar"><input type="text" placeholder="Search products..." id="searchInput"/><button class="search-btn" onclick="handleSearch()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button></div>
+    <div class="nav-actions">
+      <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
+      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
+      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="page-header"><h1>My Cart</h1></div>
+
+<div id="cartWrap"></div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>.</p></div>
+</footer>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  function renderCart() {
+    const items = Cart.get();
+    const wrap = document.getElementById('cartWrap');
+    if (items.length === 0) {
+      wrap.innerHTML = `
+        <div class="empty-cart">
+          <div style="font-size:64px;margin-bottom:20px">🛒</div>
+          <h2>Your cart is empty</h2>
+          <p>Add some products and they'll appear here.</p>
+          <a href="shop.html" class="btn btn-primary">Start Shopping</a>
+        </div>`;
+      return;
+    }
+    const subtotal = Cart.total();
+    const shipping = subtotal >= 50000 ? 0 : 2500;
+    const total = subtotal + shipping;
+
+    wrap.innerHTML = `
+      <div class="cart-layout">
+        <div class="cart-items">
+          ${items.map(item => `
+            <div class="cart-item">
+              <div class="cart-item-img">
+                <img src="${item.image || 'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'" alt="${item.name}"/>
+              </div>
+              <div class="cart-item-info">
+                <p class="cart-item-cat">${item.category || 'General'}</p>
+                <p class="cart-item-name">${item.name}</p>
+                <p class="cart-item-price">${formatPrice(item.price)}</p>
+                <div class="cart-item-actions">
+                  <div class="qty-control">
+                    <button onclick="updateItem('${item.id}', ${item.qty - 1})">−</button>
+                    <span>${item.qty}</span>
+                    <button onclick="updateItem('${item.id}', ${item.qty + 1})">+</button>
+                  </div>
+                  <button class="remove-btn" onclick="removeItem('${item.id}')">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <p style="font-size:16px;font-weight:700">${formatPrice(item.price * item.qty)}</p>
+                <p style="font-size:12px;color:var(--text2);margin-top:4px">${item.qty} × ${formatPrice(item.price)}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="cart-summary">
+          <h2 class="summary-title">Order Summary</h2>
+          <div class="summary-row"><span>Subtotal (${Cart.count()} items)</span><span>${formatPrice(subtotal)}</span></div>
+          <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? '<span style="color:#00d4ff">FREE</span>' : formatPrice(shipping)}</span></div>
+          ${shipping > 0 ? `<p style="font-size:11px;color:var(--text2);margin-top:-6px">Add ${formatPrice(50000 - subtotal)} more for free shipping</p>` : ''}
+          <hr class="summary-divider"/>
+          <div class="summary-total"><span>Total</span><span>${formatPrice(total)}</span></div>
+          <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout →</button>
+          <button class="continue-btn" onclick="window.location.href='shop.html'">Continue Shopping</button>
+        </div>
+      </div>`;
+  }
+
+  function updateItem(id, qty) {
+    Cart.updateQty(id, qty);
+    renderCart();
+  }
+
+  function removeItem(id) {
+    Cart.remove(id);
+    renderCart();
+    showToast('Item removed from cart');
+  }
+
+  function proceedToCheckout() {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      showToast('Please sign in to checkout', 'error');
+      setTimeout(() => window.location.href = 'auth.html?redirect=checkout', 1500);
+      return;
+    }
+    window.location.href = 'checkout.html';
+  }
+
+  renderCart();
+</script>
+</body>
+</html>
