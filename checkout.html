@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    .checkout-layout { display: grid; grid-template-columns: 1fr 400px; gap: 40px; padding: 40px 60px; max-width: 1200px; margin: 0 auto; }
+    .checkout-form-section { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+    .section-heading { font-family: var(--font-display); font-size: 26px; margin-bottom: 24px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .order-summary-box { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; height: fit-content; position: sticky; top: 100px; }
+    .order-item { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .order-item:last-of-type { border-bottom: none; }
+    .order-item-img { width: 56px; height: 56px; background: var(--bg4); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .order-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .order-item-info { flex: 1; }
+    .order-item-name { font-size: 13px; font-weight: 500; line-height: 1.4; }
+    .order-item-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .order-item-price { font-size: 14px; font-weight: 700; white-space: nowrap; }
+    .order-totals { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+    .total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+    .total-row span:first-child { color: var(--text2); }
+    .grand-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .pay-btn { width: 100%; margin-top: 24px; padding: 18px; font-size: 16px; font-weight: 700; border-radius: var(--radius-sm); background: var(--accent); color: #fff; border: none; font-family: var(--font-body); cursor: pointer; transition: all var(--transition); box-shadow: 0 0 24px var(--accent-glow); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .pay-btn:hover { background: var(--accent2); transform: translateY(-2px); }
+    .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .secure-badge { display: flex; align-items: center; gap: 6px; justify-content: center; margin-top: 12px; font-size: 12px; color: var(--text2); }
+    @media (max-width: 900px) { .checkout-layout { grid-template-columns: 1fr; padding: 20px; } .order-summary-box { position: static; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
+    <div class="nav-actions">
+      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="page-header"><h1>Checkout</h1><p>Complete your order below</p></div>
+
+<div class="checkout-layout">
+  <div>
+    <div class="checkout-form-section">
+      <h2 class="section-heading">Delivery Information</h2>
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" id="firstName" placeholder="John"/></div>
+        <div class="form-group"><label>Last Name</label><input type="text" id="lastName" placeholder="Doe"/></div>
+      </div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="email" placeholder="john@example.com"/></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" placeholder="080XXXXXXXX"/></div>
+      <div class="form-group"><label>Delivery Address</label><input type="text" id="address" placeholder="123 Main Street"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>City</label><input type="text" id="city" placeholder="Lagos"/></div>
+        <div class="form-group"><label>State</label>
+          <select id="state">
+            <option value="">Select State</option>
+            <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option>
+            <option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option>
+            <option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option>
+            <option>Ekiti</option><option>Enugu</option><option>FCT</option><option>Gombe</option>
+            <option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option>
+            <option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+            <option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option>
+            <option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option>
+            <option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Order Notes (Optional)</label><textarea id="notes" placeholder="Any special instructions for delivery?"></textarea></div>
+    </div>
+  </div>
+
+  <div class="order-summary-box">
+    <h2 class="section-heading">Order Summary</h2>
+    <div id="orderItems"></div>
+    <div class="order-totals">
+      <div class="total-row"><span>Subtotal</span><span id="subtotalVal">—</span></div>
+      <div class="total-row"><span>Shipping</span><span id="shippingVal">—</span></div>
+      <div class="grand-total"><span>Total</span><span id="totalVal">—</span></div>
+    </div>
+    <button class="pay-btn" id="payBtn" onclick="startPayment()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Pay with Paystack
+    </button>
+    <div class="secure-badge">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Secured by Paystack
+    </div>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>.</p></div>
+</footer>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  const PAYSTACK_KEY = 'pk_live_a3d7d2a4d67662d16b7d671f4ff0cbbaa93eb368';
+
+  function loadSummary() {
+    const items = Cart.get();
+    if (items.length === 0) { window.location.href = 'cart.html'; return; }
+
+    const subtotal = Cart.total();
+    const shipping = subtotal >= 50000 ? 0 : 2500;
+    const total = subtotal + shipping;
+
+    document.getElementById('orderItems').innerHTML = items.map(item => `
+      <div class="order-item">
+        <div class="order-item-img"><img src="${item.image || 'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'"/></div>
+        <div class="order-item-info">
+          <p class="order-item-name">${item.name}</p>
+          <p class="order-item-meta">Qty: ${item.qty}</p>
+        </div>
+        <p class="order-item-price">${formatPrice(item.price * item.qty)}</p>
+      </div>
+    `).join('');
+
+    document.getElementById('subtotalVal').textContent = formatPrice(subtotal);
+    document.getElementById('shippingVal').textContent = shipping === 0 ? 'FREE' : formatPrice(shipping);
+    document.getElementById('totalVal').textContent = formatPrice(total);
+  }
+
+  // Prefill email if logged in
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('email').value = user.email || '';
+      const name = user.displayName || '';
+      if (name) {
+        const parts = name.split(' ');
+        document.getElementById('firstName').value = parts[0] || '';
+        document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
+      }
+    }
+  });
+
+  function validateForm() {
+    const fields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state'];
+    for (const f of fields) {
+      if (!document.getElementById(f).value.trim()) {
+        showToast(`Please fill in ${f.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
+        document.getElementById(f).focus();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  async function startPayment() {
+    if (!validateForm()) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      showToast('Please sign in to complete payment', 'error');
+      setTimeout(() => window.location.href = 'auth.html?redirect=checkout', 1500);
+      return;
+    }
+
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.textContent = 'Initializing...';
+
+    const subtotal = Cart.total();
+    const shipping = subtotal >= 50000 ? 0 : 2500;
+    const total = subtotal + shipping;
+    const email = document.getElementById('email').value.trim();
+    const items = Cart.get();
+
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_KEY,
+      email: email,
+      amount: total * 100, // Paystack uses kobo
+      currency: 'NGN',
+      ref: 'TVM_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      metadata: {
+        custom_fields: [
+          { display_name: 'Customer Name', variable_name: 'name', value: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}` },
+          { display_name: 'Phone', variable_name: 'phone', value: document.getElementById('phone').value },
+          { display_name: 'Address', variable_name: 'address', value: `${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value}` }
+        ]
+      },
+      callback: async function(response) {
+        // Save order to Firestore
+        try {
+          await db.collection('orders').add({
+            userId: user.uid,
+            email: email,
+            name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+            phone: document.getElementById('phone').value,
+            address: `${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value}`,
+            notes: document.getElementById('notes').value,
+            items: items,
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total,
+            paystackRef: response.reference,
+            status: 'paid',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          Cart.clear();
+          window.location.href = `orders.html?success=true&ref=${response.reference}`;
+        } catch (err) {
+          showToast('Payment received but order save failed. Contact support.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay with Paystack';
+        }
+      },
+      onClose: function() {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay with Paystack';
+        showToast('Payment cancelled');
+      }
+    });
+
+    handler.openIframe();
+  }
+
+  loadSummary();
+</script>
+</body>
+</html>
