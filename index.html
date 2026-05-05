@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tavikmart — Shop Everything</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar" id="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap">
+      <img src="assets/logo.png" alt="Tavikmart" class="logo-img" />
+      <span class="logo-text">Tavikmart</span>
+    </a>
+
+    <div class="search-bar">
+      <input type="text" placeholder="Search products, brands & more..." id="searchInput" />
+      <button class="search-btn" onclick="handleSearch()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </div>
+
+    <div class="nav-actions">
+      <a href="auth.html" class="nav-btn" id="authBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span id="authLabel">Sign In</span>
+      </a>
+      <a href="cart.html" class="nav-btn cart-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </a>
+      <a href="dashboard.html" class="nav-btn admin-btn" id="adminBtn" style="display:none">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+    </div>
+  </div>
+
+  <nav class="nav-categories">
+    <a href="shop.html?cat=all">All</a>
+    <a href="shop.html?cat=electronics">Electronics</a>
+    <a href="shop.html?cat=fashion">Fashion</a>
+    <a href="shop.html?cat=home">Home & Living</a>
+    <a href="shop.html?cat=beauty">Beauty</a>
+    <a href="shop.html?cat=sports">Sports</a>
+    <a href="shop.html?cat=books">Books</a>
+    <a href="shop.html?cat=toys">Toys</a>
+    <a href="shop.html?cat=food">Food</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-sub">NEW ARRIVALS 2025</p>
+    <h1 class="hero-title">Everything<br/>You <span class="accent">Need.</span><br/>One Place.</h1>
+    <p class="hero-desc">Premium products. Lightning fast delivery. Unbeatable prices.</p>
+    <a href="shop.html" class="hero-cta">Shop Now
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card">
+      <div class="hero-card-glow"></div>
+      <svg class="hero-icon" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="55" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+        <circle cx="60" cy="60" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="2"/>
+        <path d="M40 50h40M40 60h30M40 70h20" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+        <rect x="35" y="40" width="50" height="45" rx="4" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      </svg>
+      <p class="hero-card-label">10,000+ Products</p>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>FREE DELIVERY ON ORDERS OVER ₦50,000</span>
+    <span class="dot">●</span>
+    <span>SECURE PAYMENTS VIA PAYSTACK</span>
+    <span class="dot">●</span>
+    <span>SHOP ELECTRONICS, FASHION, HOME & MORE</span>
+    <span class="dot">●</span>
+    <span>FREE DELIVERY ON ORDERS OVER ₦50,000</span>
+    <span class="dot">●</span>
+    <span>SECURE PAYMENTS VIA PAYSTACK</span>
+    <span class="dot">●</span>
+    <span>SHOP ELECTRONICS, FASHION, HOME & MORE</span>
+    <span class="dot">●</span>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Shop by Category</h2>
+    <a href="shop.html" class="see-all">See All →</a>
+  </div>
+  <div class="categories-grid">
+    <a href="shop.html?cat=electronics" class="cat-card">
+      <div class="cat-icon">📱</div>
+      <span>Electronics</span>
+    </a>
+    <a href="shop.html?cat=fashion" class="cat-card">
+      <div class="cat-icon">👗</div>
+      <span>Fashion</span>
+    </a>
+    <a href="shop.html?cat=home" class="cat-card">
+      <div class="cat-icon">🏠</div>
+      <span>Home & Living</span>
+    </a>
+    <a href="shop.html?cat=beauty" class="cat-card">
+      <div class="cat-icon">💄</div>
+      <span>Beauty</span>
+    </a>
+    <a href="shop.html?cat=sports" class="cat-card">
+      <div class="cat-icon">⚽</div>
+      <span>Sports</span>
+    </a>
+    <a href="shop.html?cat=books" class="cat-card">
+      <div class="cat-icon">📚</div>
+      <span>Books</span>
+    </a>
+    <a href="shop.html?cat=toys" class="cat-card">
+      <div class="cat-icon">🧸</div>
+      <span>Toys</span>
+    </a>
+    <a href="shop.html?cat=food" class="cat-card">
+      <div class="cat-icon">🍎</div>
+      <span>Food</span>
+    </a>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Featured Products</h2>
+    <a href="shop.html" class="see-all">View All →</a>
+  </div>
+  <div class="products-grid" id="featuredProducts">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEALS BANNER -->
+<section class="deals-banner">
+  <div class="deals-content">
+    <p class="deals-sub">LIMITED TIME</p>
+    <h2>Flash Deals 🔥</h2>
+    <p>Massive discounts across all categories. Don't miss out.</p>
+    <a href="shop.html?deals=true" class="hero-cta">Shop Deals</a>
+  </div>
+  <div class="deals-visual">
+    <div class="deals-circle c1"></div>
+    <div class="deals-circle c2"></div>
+    <div class="deals-circle c3"></div>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">New Arrivals</h2>
+    <a href="shop.html?sort=newest" class="see-all">See More →</a>
+  </div>
+  <div class="products-grid" id="newArrivals">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-section">
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">🚚</div>
+      <h3>Fast Delivery</h3>
+      <p>Get your orders delivered to your doorstep quickly across Nigeria.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🔒</div>
+      <h3>Secure Payments</h3>
+      <p>All transactions secured by Paystack — Nigeria's most trusted payment gateway.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">✅</div>
+      <h3>Verified Products</h3>
+      <p>Every product is quality-checked before listing on Tavikmart.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">↩️</div>
+      <h3>Easy Returns</h3>
+      <p>Not satisfied? Return within 7 days. No questions asked.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <img src="assets/logo.png" alt="Tavikmart" class="footer-logo" />
+      <p>Your one-stop marketplace for everything you need, delivered to your door.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Shop</h4>
+      <a href="shop.html">All Products</a>
+      <a href="shop.html?cat=electronics">Electronics</a>
+      <a href="shop.html?cat=fashion">Fashion</a>
+      <a href="shop.html?deals=true">Deals</a>
+    </div>
+    <div class="footer-links">
+      <h4>Account</h4>
+      <a href="auth.html">Login / Register</a>
+      <a href="cart.html">My Cart</a>
+      <a href="orders.html">My Orders</a>
+    </div>
+    <div class="footer-links">
+      <h4>Info</h4>
+      <a href="#">About Us</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
