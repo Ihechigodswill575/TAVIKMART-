@@ -35,28 +35,42 @@
     .upload-status{font-size:13px;color:var(--accent2);margin-top:8px;display:none;text-align:center}
     .products-table{width:100%;border-collapse:collapse}
     .products-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:10px 14px;border-bottom:1px solid var(--border)}
-    .products-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+    .products-table td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
     .products-table tr:last-child td{border-bottom:none}
-    .products-table tr:hover td{background:var(--bg4)}
+    .products-table tr:hover td{background:rgba(255,255,255,0.02)}
     .tbl-img{width:42px;height:42px;object-fit:cover;border-radius:6px;background:var(--bg4)}
-    .tbl-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font-body);transition:all var(--transition)}
+    .tbl-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--font-body);transition:all var(--transition)}
+    .tbl-edit{background:rgba(0,113,227,.12);color:var(--accent2)}
+    .tbl-edit:hover{background:rgba(0,113,227,.25)}
     .tbl-del{background:rgba(224,49,49,.1);color:#ff6b6b}
     .tbl-del:hover{background:rgba(224,49,49,.25)}
-    .toggle-feat{width:38px;height:20px;background:var(--bg4);border-radius:10px;border:1px solid var(--border);cursor:pointer;position:relative;transition:background var(--transition);flex-shrink:0}
+    .toggle-feat{width:38px;height:20px;background:var(--bg4);border-radius:10px;border:1px solid var(--border);cursor:pointer;position:relative;transition:background var(--transition);flex-shrink:0;display:inline-block}
     .toggle-feat.on{background:var(--accent);border-color:var(--accent)}
-    .toggle-feat::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform var(--transition);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+    .toggle-feat::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform var(--transition);box-shadow:0 1px 3px rgba(0,0,0,.3)}
     .toggle-feat.on::after{transform:translateX(18px)}
-    .success-msg{background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#00c864;display:none;margin-bottom:14px}
-    .error-msg{background:rgba(224,49,49,.1);border:1px solid rgba(224,49,49,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#ff6b6b;display:none;margin-bottom:14px}
+    .msg-success{background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--green);display:none;margin-bottom:14px}
+    .msg-error{background:rgba(224,49,49,.1);border:1px solid rgba(224,49,49,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#ff6b6b;display:none;margin-bottom:14px}
     .status-select{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:12px;padding:5px 10px;border-radius:6px;outline:none;cursor:pointer}
     .status-select:focus{border-color:var(--accent)}
+    /* Edit Modal */
+    .edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+    .edit-modal.show{opacity:1;pointer-events:all}
+    .edit-box{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .25s;position:relative}
+    .edit-modal.show .edit-box{transform:translateY(0)}
+    .edit-close{position:absolute;top:14px;right:14px;background:var(--bg4);border:none;color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all var(--transition)}
+    .edit-close:hover{background:var(--bg);color:var(--text)}
+    /* Flash sale section */
+    .flash-active-card{background:linear-gradient(135deg,rgba(224,49,49,.08),rgba(255,100,0,.05));border:1px solid rgba(224,49,49,.25);border-radius:var(--radius);padding:20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .flash-active-info h4{font-size:15px;font-weight:700;margin-bottom:4px}
+    .flash-active-info p{font-size:12px;color:var(--text2)}
+    .flash-tag{background:rgba(224,49,49,.15);color:var(--red);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px}
     @media(max-width:900px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-main{padding:20px}}
   </style>
 </head>
 <body>
 <header class="navbar">
   <div class="nav-top">
-    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
     <div class="nav-actions">
       <a href="index.html" class="nav-btn">← Store</a>
       <span class="nav-btn" id="dashUserName" style="color:var(--accent2);font-size:13px"></span>
@@ -65,7 +79,10 @@
   </div>
 </header>
 
-<div id="authLoading" style="display:flex;align-items:center;justify-content:center;min-height:80vh;flex-direction:column;gap:16px"><div class="spinner"></div><p style="color:var(--text2)">Checking access...</p></div>
+<!-- Loading screen -->
+<div id="authLoading" style="display:flex;align-items:center;justify-content:center;min-height:80vh;flex-direction:column;gap:16px">
+  <div class="spinner"></div><p style="color:var(--text2)">Checking access...</p>
+</div>
 
 <div class="dash-layout" id="dashContent" style="display:none">
   <aside class="dash-sidebar">
@@ -74,6 +91,7 @@
       <a onclick="showSection('add-product',this)">➕ Add Product</a>
       <a onclick="showSection('products',this)">📦 Products</a>
       <a onclick="showSection('orders',this)">🧾 Orders</a>
+      <a onclick="showSection('flash',this)">⚡ Flash Sales</a>
     </nav>
   </aside>
 
@@ -92,8 +110,9 @@
         <h2 class="panel-title">Quick Actions</h2>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="showSection('add-product',null)">+ Add Product</button>
-          <button class="btn btn-outline" onclick="showSection('products',null)">View Products</button>
+          <button class="btn btn-outline" onclick="showSection('products',null)">Manage Products</button>
           <button class="btn btn-outline" onclick="showSection('orders',null)">View Orders</button>
+          <button class="btn btn-outline" onclick="showSection('flash',null)">⚡ Flash Sales</button>
         </div>
       </div>
     </div>
@@ -101,40 +120,35 @@
     <!-- ADD PRODUCT -->
     <div id="section-add-product" style="display:none">
       <div class="dash-header"><h1>Add Product</h1><p>Upload a new product to your store</p></div>
-      <div id="addSuccessMsg" class="success-msg"></div>
-      <div id="addErrorMsg" class="error-msg"></div>
+      <div id="addSuccessMsg" class="msg-success"></div>
+      <div id="addErrorMsg" class="msg-error"></div>
       <div class="panel">
         <h2 class="panel-title">Product Images</h2>
         <div class="upload-area">
           <input type="file" id="imgFiles" accept="image/*" multiple onchange="previewImages(this)"/>
           <div style="font-size:34px;margin-bottom:8px">📸</div>
           <p><strong>Click to upload images</strong> or drag & drop</p>
-          <p style="font-size:12px;color:var(--text2);margin-top:4px">JPG, PNG, WEBP supported — multiple allowed</p>
+          <p style="font-size:12px;color:var(--text2);margin-top:4px">JPG, PNG, WEBP — multiple images allowed</p>
         </div>
         <div class="upload-preview" id="uploadPreview"></div>
         <div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
         <p class="upload-status" id="uploadStatus"></p>
-        <p style="font-size:12px;color:var(--text2);margin-top:10px">💡 No image? Leave empty — placeholder used automatically.</p>
       </div>
       <div class="panel">
         <h2 class="panel-title">Product Details</h2>
         <div class="form-group"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g. iPhone 15 Pro Max"/></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group"><label>Price (₦) *</label><input type="number" id="pPrice" placeholder="25000" min="0"/></div>
-          <div class="form-group"><label>Old Price (₦) — shows discount badge</label><input type="number" id="pOldPrice" placeholder="30000 (optional)" min="0"/></div>
+          <div class="form-group"><label>Old Price (₦) — shows discount</label><input type="number" id="pOldPrice" placeholder="30000 (optional)" min="0"/></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group"><label>Category *</label>
             <select id="pCategory">
               <option value="">Select Category</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Fashion">Fashion</option>
-              <option value="Home & Living">Home & Living</option>
-              <option value="Beauty">Beauty</option>
-              <option value="Sports">Sports</option>
-              <option value="Books">Books</option>
-              <option value="Toys">Toys</option>
-              <option value="Food">Food</option>
+              <option value="Electronics">Electronics</option><option value="Fashion">Fashion</option>
+              <option value="Home & Living">Home & Living</option><option value="Beauty">Beauty</option>
+              <option value="Sports">Sports</option><option value="Books">Books</option>
+              <option value="Toys">Toys</option><option value="Food">Food</option>
             </select>
           </div>
           <div class="form-group"><label>Brand (optional)</label><input type="text" id="pBrand" placeholder="Apple, Samsung, Nike..."/></div>
@@ -146,15 +160,15 @@
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="addProduct()" id="addProductBtn" style="min-width:180px;padding:14px 24px;font-size:15px">+ Add Product</button>
-          <button class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+          <button class="btn btn-outline" onclick="resetForm()">Clear</button>
         </div>
       </div>
     </div>
 
-    <!-- PRODUCTS LIST -->
+    <!-- PRODUCTS -->
     <div id="section-products" style="display:none">
       <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px">
-        <div><h1>Products</h1><p>Manage your catalogue</p></div>
+        <div><h1>Products</h1><p>Edit, delete and manage your catalogue</p></div>
         <button class="btn btn-primary" onclick="showSection('add-product',null)">+ Add New</button>
       </div>
       <div class="panel" style="padding:0;overflow:hidden">
@@ -164,34 +178,89 @@
 
     <!-- ORDERS -->
     <div id="section-orders" style="display:none">
-      <div class="dash-header"><h1>Orders</h1><p>View and update order statuses</p></div>
+      <div class="dash-header"><h1>Orders</h1><p>Update order statuses — customers see this in real time</p></div>
       <div class="panel" style="padding:0;overflow:hidden">
         <div id="ordersTableWrap"><div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div></div>
+      </div>
+    </div>
+
+    <!-- FLASH SALES -->
+    <div id="section-flash" style="display:none">
+      <div class="dash-header"><h1>Flash Sales</h1><p>Create time-limited sales that show on your homepage with a countdown</p></div>
+
+      <div class="panel">
+        <h2 class="panel-title">Active Flash Sales</h2>
+        <div id="activeFlashList"><div class="loading-spinner" style="padding:30px"><div class="spinner"></div></div></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">Create Flash Sale</h2>
+        <div id="flashSuccessMsg" class="msg-success"></div>
+        <div id="flashErrorMsg" class="msg-error"></div>
+        <div class="form-group"><label>Sale Title *</label><input type="text" id="flashTitle" placeholder="e.g. MEGA WEEKEND DEALS"/></div>
+        <div class="form-group"><label>Description</label><input type="text" id="flashDesc" placeholder="e.g. Up to 70% off selected items"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group"><label>Starts At *</label><input type="datetime-local" id="flashStart"/></div>
+          <div class="form-group"><label>Ends At *</label><input type="datetime-local" id="flashEnd"/></div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:20px">💡 After creating the sale, go to <strong>Products</strong> and toggle Flash Sale on individual products to include them.</p>
+        <button class="btn btn-primary" onclick="createFlashSale()" style="min-width:180px">⚡ Create Flash Sale</button>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">Mark Products as Flash Sale</h2>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Toggle flash sale on individual products below. Set a flash price for extra discount.</p>
+        <div id="flashProductsWrap"><div class="loading-spinner" style="padding:30px"><div class="spinner"></div></div></div>
       </div>
     </div>
 
   </main>
 </div>
 
+<!-- EDIT PRODUCT MODAL -->
+<div class="edit-modal" id="editModal">
+  <div class="edit-box">
+    <button class="edit-close" onclick="closeEditModal()">✕</button>
+    <h2 style="font-family:var(--font-display);font-size:28px;margin-bottom:20px">Edit Product</h2>
+    <input type="hidden" id="editProductId"/>
+    <div id="editSuccessMsg" class="msg-success"></div>
+    <div id="editErrorMsg" class="msg-error"></div>
+    <div class="form-group"><label>Product Name *</label><input type="text" id="editName"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="form-group"><label>Price (₦) *</label><input type="number" id="editPrice" min="0"/></div>
+      <div class="form-group"><label>Old Price (₦)</label><input type="number" id="editOldPrice" min="0" placeholder="Optional"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="form-group"><label>Category</label>
+        <select id="editCategory">
+          <option value="Electronics">Electronics</option><option value="Fashion">Fashion</option>
+          <option value="Home & Living">Home & Living</option><option value="Beauty">Beauty</option>
+          <option value="Sports">Sports</option><option value="Books">Books</option>
+          <option value="Toys">Toys</option><option value="Food">Food</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Brand</label><input type="text" id="editBrand" placeholder="Optional"/></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="editDesc"></textarea></div>
+    <button class="btn btn-primary" onclick="saveEdit()" style="width:100%;padding:14px;font-size:15px">Save Changes</button>
+  </div>
+</div>
+
 <script src="js/firebase-config.js"></script>
 <script src="js/cart.js"></script>
 <script>
-  const CLOUDINARY_CLOUD = 'dzxckgbzp';
-  const CLOUDINARY_PRESET = 'Odegaard';
+  const CLOUD = 'dzxckgbzp', PRESET = 'Odegaard';
   let featuredOn = false;
 
   // Auth guard
   auth.onAuthStateChanged(user => {
-    const loading = document.getElementById('authLoading');
-    const content = document.getElementById('dashContent');
     if (!user) { window.location.href = 'auth.html'; return; }
     if (user.email !== ADMIN_EMAIL) { window.location.href = 'index.html'; return; }
-    loading.style.display = 'none';
-    content.style.display = 'grid';
-    const nameEl = document.getElementById('dashUserName');
-    if (nameEl) nameEl.textContent = user.displayName || user.email.split('@')[0];
-    const wEl = document.getElementById('welcomeMsg');
-    if (wEl) wEl.textContent = 'Welcome back, ' + (user.displayName || 'Admin') + ' 👋';
+    document.getElementById('authLoading').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'grid';
+    const n = user.displayName || user.email.split('@')[0];
+    document.getElementById('dashUserName').textContent = n;
+    document.getElementById('welcomeMsg').textContent = `Welcome back, ${n} 👋`;
     loadStats();
   });
 
@@ -202,36 +271,27 @@
     if (el) el.classList.add('active');
     if (name === 'products') loadProductsTable();
     if (name === 'orders') loadOrdersTable();
+    if (name === 'flash') { loadActiveFlashSales(); loadFlashProducts(); }
   }
 
-  function toggleFeatured() {
-    featuredOn = !featuredOn;
-    document.getElementById('featToggle').classList.toggle('on', featuredOn);
-  }
+  function toggleFeatured() { featuredOn = !featuredOn; document.getElementById('featToggle').classList.toggle('on', featuredOn); }
 
   function previewImages(input) {
     const preview = document.getElementById('uploadPreview');
     preview.innerHTML = '';
     Array.from(input.files).forEach(file => {
       const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.className = 'preview-img';
-        preview.appendChild(img);
-      };
+      reader.onload = e => { const img = document.createElement('img'); img.src = e.target.result; img.className = 'preview-img'; preview.appendChild(img); };
       reader.readAsDataURL(file);
     });
   }
 
   async function uploadToCloudinary(file) {
     const fd = new FormData();
-    fd.append('file', file);
-    fd.append('upload_preset', CLOUDINARY_PRESET);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: 'POST', body: fd });
+    fd.append('file', file); fd.append('upload_preset', PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, { method: 'POST', body: fd });
     if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Upload failed'); }
-    const data = await res.json();
-    return data.secure_url;
+    return (await res.json()).secure_url;
   }
 
   async function addProduct() {
@@ -245,63 +305,37 @@
 
     document.getElementById('addErrorMsg').style.display = 'none';
     document.getElementById('addSuccessMsg').style.display = 'none';
-
-    if (!name) { showFormError('Please enter a product name'); return; }
-    if (!price || price <= 0) { showFormError('Please enter a valid price'); return; }
-    if (!category) { showFormError('Please select a category'); return; }
+    if (!name) { showMsg('addErrorMsg', '❌ Enter a product name'); return; }
+    if (!price || price <= 0) { showMsg('addErrorMsg', '❌ Enter a valid price'); return; }
+    if (!category) { showMsg('addErrorMsg', '❌ Select a category'); return; }
 
     const btn = document.getElementById('addProductBtn');
     btn.disabled = true; btn.textContent = 'Working...';
-
     const progress = document.getElementById('uploadProgress');
     const bar = document.getElementById('uploadBar');
     const status = document.getElementById('uploadStatus');
-    progress.style.display = 'block';
-    status.style.display = 'block';
+    progress.style.display = 'block'; status.style.display = 'block';
 
     try {
       const imageUrls = [];
       for (let i = 0; i < files.length; i++) {
         status.textContent = `Uploading image ${i+1} of ${files.length}...`;
         bar.style.width = `${((i+1)/Math.max(files.length,1))*70}%`;
-        const url = await uploadToCloudinary(files[i]);
-        imageUrls.push(url);
+        imageUrls.push(await uploadToCloudinary(files[i]));
       }
-
-      bar.style.width = '85%';
-      status.textContent = 'Saving to database...';
-
-      await db.collection('products').add({
-        name, price, oldPrice, category,
-        brand: brand || null,
-        description: description || null,
-        featured: featuredOn,
-        images: imageUrls,
-        image: imageUrls[0] || '',
-        inStock: true,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
+      bar.style.width = '85%'; status.textContent = 'Saving...';
+      await db.collection('products').add({ name, price, oldPrice, category, brand: brand||null, description: description||null, featured: featuredOn, images: imageUrls, image: imageUrls[0]||'', inStock: true, flashSale: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       bar.style.width = '100%';
-      const sEl = document.getElementById('addSuccessMsg');
-      sEl.textContent = `✅ "${name}" added successfully!`;
-      sEl.style.display = 'block';
-      sEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      setTimeout(() => { resetForm(); progress.style.display = 'none'; status.style.display = 'none'; bar.style.width = '0%'; }, 2000);
+      showMsg('addSuccessMsg', `✅ "${name}" added!`);
+      setTimeout(() => { resetForm(); progress.style.display='none'; status.style.display='none'; bar.style.width='0%'; }, 2000);
       loadStats();
-    } catch(err) {
-      showFormError('Error: ' + err.message);
-      progress.style.display = 'none';
-      status.style.display = 'none';
-    }
+    } catch(err) { showMsg('addErrorMsg', '❌ ' + err.message); progress.style.display='none'; status.style.display='none'; }
     btn.disabled = false; btn.textContent = '+ Add Product';
   }
 
-  function showFormError(msg) {
-    const el = document.getElementById('addErrorMsg');
-    el.textContent = '❌ ' + msg;
-    el.style.display = 'block';
+  function showMsg(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
@@ -312,17 +346,16 @@
     document.getElementById('imgFiles').value = '';
     document.getElementById('addSuccessMsg').style.display = 'none';
     document.getElementById('addErrorMsg').style.display = 'none';
-    featuredOn = false;
-    document.getElementById('featToggle').classList.remove('on');
+    featuredOn = false; document.getElementById('featToggle').classList.remove('on');
   }
 
   async function loadStats() {
     try {
-      const [p, o, u] = await Promise.all([db.collection('products').get(), db.collection('orders').get(), db.collection('users').get()]);
-      const revenue = o.docs.reduce((s,d) => s + (d.data().total||0), 0);
+      const [p,o,u] = await Promise.all([db.collection('products').get(), db.collection('orders').get(), db.collection('users').get()]);
+      const rev = o.docs.reduce((s,d) => s+(d.data().total||0), 0);
       document.getElementById('statProducts').textContent = p.size;
       document.getElementById('statOrders').textContent = o.size;
-      document.getElementById('statRevenue').textContent = '₦' + Math.round(revenue/1000) + 'k';
+      document.getElementById('statRevenue').textContent = '₦'+Math.round(rev/1000)+'k';
       document.getElementById('statCustomers').textContent = u.size;
     } catch(e) {}
   }
@@ -332,35 +365,75 @@
     wrap.innerHTML = '<div class="loading-spinner" style="padding:60px"><div class="spinner"></div><p>Loading...</p></div>';
     try {
       const snap = await db.collection('products').orderBy('createdAt','desc').get();
-      if (snap.empty) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>No products yet</h3><p>Add your first product!</p></div>`; return; }
+      if (snap.empty) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>No products yet</h3></div>`; return; }
       wrap.innerHTML = `<table class="products-table">
         <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead>
         <tbody>${snap.docs.map(doc => {
           const p = doc.data();
           return `<tr>
-            <td><img class="tbl-img" src="${p.image||'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'"/></td>
+            <td><img class="tbl-img" src="${p.image||'assets/placeholder.svg'}" onerror="this.src='assets/placeholder.svg'"/></td>
             <td style="max-width:180px;font-weight:500">${p.name}</td>
             <td style="color:var(--text2)">${p.category||'—'}</td>
             <td style="font-weight:700">₦${Number(p.price).toLocaleString()}</td>
             <td><div class="toggle-feat ${p.featured?'on':''}" onclick="toggleFeat('${doc.id}',${!p.featured},this)"></div></td>
-            <td><button class="tbl-btn tbl-del" onclick="delProduct('${doc.id}','${p.name.replace(/'/g,"\\'")}',this)">Delete</button></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="tbl-btn tbl-edit" onclick="openEditModal('${doc.id}','${p.name.replace(/'/g,"\\'")}',${p.price},${p.oldPrice||0},'${p.category||''}','${(p.brand||'').replace(/'/g,"\\'")}','${(p.description||'').replace(/'/g,"\\'").replace(/\n/g,' ')}')">✏️ Edit</button>
+                <button class="tbl-btn tbl-del" onclick="delProduct('${doc.id}','${p.name.replace(/'/g,"\\'")}',this)">🗑️ Delete</button>
+              </div>
+            </td>
           </tr>`;
         }).join('')}</tbody></table>`;
     } catch(err) { wrap.innerHTML = `<div class="empty-state" style="padding:60px"><h3>${err.message}</h3></div>`; }
+  }
+
+  function openEditModal(id, name, price, oldPrice, category, brand, description) {
+    document.getElementById('editProductId').value = id;
+    document.getElementById('editName').value = name;
+    document.getElementById('editPrice').value = price;
+    document.getElementById('editOldPrice').value = oldPrice || '';
+    document.getElementById('editCategory').value = category;
+    document.getElementById('editBrand').value = brand;
+    document.getElementById('editDesc').value = description;
+    document.getElementById('editSuccessMsg').style.display = 'none';
+    document.getElementById('editErrorMsg').style.display = 'none';
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
+
+  async function saveEdit() {
+    const id = document.getElementById('editProductId').value;
+    const name = document.getElementById('editName').value.trim();
+    const price = parseFloat(document.getElementById('editPrice').value);
+    const oldPrice = parseFloat(document.getElementById('editOldPrice').value) || null;
+    const category = document.getElementById('editCategory').value;
+    const brand = document.getElementById('editBrand').value.trim();
+    const description = document.getElementById('editDesc').value.trim();
+
+    if (!name || !price || price <= 0) { showMsg('editErrorMsg', '❌ Name and valid price are required'); return; }
+    try {
+      await db.collection('products').doc(id).update({ name, price, oldPrice, category, brand: brand||null, description: description||null });
+      showMsg('editSuccessMsg', '✅ Product updated!');
+      showToast('Product updated ✅');
+      setTimeout(() => { closeEditModal(); loadProductsTable(); Cache.clear('featured'); Cache.clear('arrivals'); }, 1500);
+    } catch(err) { showMsg('editErrorMsg', '❌ ' + err.message); }
   }
 
   async function toggleFeat(id, val, btn) {
     await db.collection('products').doc(id).update({ featured: val });
     btn.classList.toggle('on', val);
     showToast(val ? 'Marked as featured ⭐' : 'Removed from featured');
+    Cache.clear('featured');
   }
 
   async function delProduct(id, name, btn) {
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     btn.textContent = '...'; btn.disabled = true;
     await db.collection('products').doc(id).delete();
     showToast(`"${name}" deleted`);
     loadProductsTable(); loadStats();
+    Cache.clear('featured'); Cache.clear('arrivals');
   }
 
   async function loadOrdersTable() {
@@ -381,11 +454,11 @@
             <td style="font-weight:700">₦${Number(o.total).toLocaleString()}</td>
             <td>
               <select class="status-select" onchange="updateOrderStatus('${doc.id}',this.value)">
-                <option value="paid" ${o.status==='paid'?'selected':''}>Paid</option>
-                <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
+                <option value="paid" ${(o.status||'paid')==='paid'?'selected':''}>Paid</option>
+                <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed ✅</option>
                 <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped 🚚</option>
                 <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered 📦</option>
-                <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+                <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled ❌</option>
               </select>
             </td>
             <td style="font-size:12px;color:var(--text2)">${date}</td>
@@ -397,9 +470,118 @@
   async function updateOrderStatus(id, status) {
     try {
       await db.collection('orders').doc(id).update({ status });
-      showToast(`Order status updated to "${status}" ✅`);
-    } catch(err) { showToast('Error: ' + err.message, 'error'); }
+      showToast(`Order updated to "${status}" ✅`);
+    } catch(err) { showToast('Error: '+err.message, 'error'); }
   }
+
+  // ===== FLASH SALES =====
+  async function loadActiveFlashSales() {
+    const wrap = document.getElementById('activeFlashList');
+    try {
+      const snap = await db.collection('flashSales').orderBy('createdAt','desc').limit(10).get();
+      if (snap.empty) { wrap.innerHTML = `<p style="color:var(--text2);font-size:14px">No flash sales yet. Create one below!</p>`; return; }
+      wrap.innerHTML = snap.docs.map(doc => {
+        const f = doc.data();
+        const end = f.endsAt?.toDate ? f.endsAt.toDate().toLocaleString('en-NG') : '—';
+        const isActive = f.active;
+        return `<div class="flash-active-card">
+          <div class="flash-active-info">
+            <h4>${f.title || 'Flash Sale'}</h4>
+            <p>${f.description || ''} · Ends: ${end}</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="flash-tag">${isActive ? '⚡ ACTIVE' : '⏸ ENDED'}</span>
+            <button class="tbl-btn tbl-edit" onclick="toggleFlashActive('${doc.id}',${!isActive})">${isActive ? 'Deactivate' : 'Activate'}</button>
+            <button class="tbl-btn tbl-del" onclick="deleteFlashSale('${doc.id}',this)">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(err) { wrap.innerHTML = `<p style="color:#ff6b6b">${err.message}</p>`; }
+  }
+
+  async function createFlashSale() {
+    const title = document.getElementById('flashTitle').value.trim();
+    const desc = document.getElementById('flashDesc').value.trim();
+    const start = document.getElementById('flashStart').value;
+    const end = document.getElementById('flashEnd').value;
+
+    document.getElementById('flashSuccessMsg').style.display = 'none';
+    document.getElementById('flashErrorMsg').style.display = 'none';
+
+    if (!title) { showMsg('flashErrorMsg', '❌ Enter a sale title'); return; }
+    if (!end) { showMsg('flashErrorMsg', '❌ Set an end date/time'); return; }
+
+    try {
+      await db.collection('flashSales').add({
+        title, description: desc,
+        startsAt: start ? firebase.firestore.Timestamp.fromDate(new Date(start)) : firebase.firestore.FieldValue.serverTimestamp(),
+        endsAt: firebase.firestore.Timestamp.fromDate(new Date(end)),
+        active: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      showMsg('flashSuccessMsg', '✅ Flash sale created! It will show on your homepage.');
+      ['flashTitle','flashDesc','flashStart','flashEnd'].forEach(id => document.getElementById(id).value = '');
+      loadActiveFlashSales();
+    } catch(err) { showMsg('flashErrorMsg', '❌ '+err.message); }
+  }
+
+  async function toggleFlashActive(id, val) {
+    await db.collection('flashSales').doc(id).update({ active: val });
+    showToast(val ? 'Flash sale activated ⚡' : 'Flash sale deactivated');
+    loadActiveFlashSales();
+  }
+
+  async function deleteFlashSale(id, btn) {
+    if (!confirm('Delete this flash sale?')) return;
+    btn.textContent = '...'; btn.disabled = true;
+    await db.collection('flashSales').doc(id).delete();
+    showToast('Flash sale deleted');
+    loadActiveFlashSales();
+  }
+
+  async function loadFlashProducts() {
+    const wrap = document.getElementById('flashProductsWrap');
+    try {
+      const snap = await db.collection('products').orderBy('createdAt','desc').get();
+      if (snap.empty) { wrap.innerHTML = `<p style="color:var(--text2)">No products yet.</p>`; return; }
+      wrap.innerHTML = `<table class="products-table">
+        <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Flash Price (₦)</th><th>Flash Sale</th></tr></thead>
+        <tbody>${snap.docs.map(doc => {
+          const p = doc.data();
+          return `<tr>
+            <td><img class="tbl-img" src="${p.image||'assets/placeholder.svg'}" onerror="this.src='assets/placeholder.svg'"/></td>
+            <td style="font-weight:500;max-width:160px">${p.name}</td>
+            <td>₦${Number(p.price).toLocaleString()}</td>
+            <td><input type="number" placeholder="Flash price" value="${p.flashPrice||''}" id="fp_${doc.id}" style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;width:120px;font-family:var(--font-body);font-size:13px;outline:none"/></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="toggle-feat ${p.flashSale?'on':''}" onclick="toggleFlashProduct('${doc.id}',${!p.flashSale},this)"></div>
+                <button class="tbl-btn tbl-edit" onclick="saveFlashPrice('${doc.id}')">Save</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}</tbody></table>`;
+    } catch(err) { wrap.innerHTML = `<p style="color:#ff6b6b">${err.message}</p>`; }
+  }
+
+  async function toggleFlashProduct(id, val, btn) {
+    await db.collection('products').doc(id).update({ flashSale: val });
+    btn.classList.toggle('on', val);
+    showToast(val ? '⚡ Added to flash sale' : 'Removed from flash sale');
+    Cache.clear('featured'); Cache.clear('arrivals');
+  }
+
+  async function saveFlashPrice(id) {
+    const price = parseFloat(document.getElementById('fp_'+id).value);
+    if (!price || price <= 0) { showToast('Enter a valid flash price', 'error'); return; }
+    await db.collection('products').doc(id).update({ flashPrice: price });
+    showToast('Flash price saved ✅');
+  }
+
+  // Close edit modal on overlay click
+  document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
 </script>
 </body>
 </html>
