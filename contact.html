@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <div class="nav-actions">
+      <a href="shop.html" class="nav-btn">Shop</a>
+      <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
+      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
+      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><span>Dashboard</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="static-page">
+  <h1>Contact Us</h1>
+  <p class="lead">Have a question, complaint or suggestion? We're here to help. Reach out to us through any of the channels below.</p>
+
+  <div class="contact-grid">
+    <div class="contact-info-card">
+      <h3>Get In Touch</h3>
+      <div class="contact-item"><span>📧</span><span>support@ihechigodswill575@gmail.com</span></div>
+      <div class="contact-item"><span>📞</span><span>+234 814 568 8688</span></div>
+      <div class="contact-item"><span>💬</span><span>WhatsApp: +234 814 568 8688</span></div>
+      <div class="contact-item"><span>🕐</span><span>Mon – Sat: 8am – 8pm</span></div>
+      <div class="contact-item"><span>📍</span><span>Nigeria</span></div>
+    </div>
+
+    <div>
+      <div class="settings-card" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:28px">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:20px">Send Us a Message</h3>
+        <div id="contactSuccess" style="display:none;background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--green);margin-bottom:16px">✅ Message sent! We'll get back to you soon.</div>
+        <div class="form-group"><label>Your Name</label><input type="text" id="contactName" placeholder="John Doe"/></div>
+        <div class="form-group"><label>Email</label><input type="email" id="contactEmail" placeholder="your@email.com"/></div>
+        <div class="form-group"><label>Subject</label>
+          <select id="contactSubject">
+            <option value="">Select subject</option>
+            <option>Order Issue</option>
+            <option>Payment Problem</option>
+            <option>Product Enquiry</option>
+            <option>Return / Refund</option>
+            <option>Delivery Issue</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message</label><textarea id="contactMessage" placeholder="Describe your issue or question..."></textarea></div>
+        <button class="btn btn-primary" onclick="sendMessage()" id="sendBtn" style="width:100%;padding:14px;font-size:15px">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;padding:24px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius)">
+    <h2 style="margin-top:0;margin-bottom:12px">FAQs</h2>
+    <p><strong>How long does delivery take?</strong><br/>Delivery typically takes 2–5 business days depending on your location within Nigeria.</p>
+    <p><strong>How do I track my order?</strong><br/>Log in to your account and go to <a href="account.html" style="color:var(--accent2)">My Account → Track Orders</a> to see your order status in real time.</p>
+    <p><strong>What payment methods are accepted?</strong><br/>We accept all cards (Visa, Mastercard, Verve), bank transfers and USSD through Paystack.</p>
+    <p><strong>Can I return a product?</strong><br/>Yes! Returns are accepted within 7 days of delivery. Contact us to initiate a return.</p>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>. All rights reserved.</p></div>
+</footer>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  async function sendMessage() {
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value;
+    const message = document.getElementById('contactMessage').value.trim();
+    if (!name || !email || !subject || !message) { showToast('Please fill in all fields', 'error'); return; }
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      await db.collection('messages').add({
+        name, email, subject, message,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById('contactSuccess').style.display = 'block';
+      ['contactName','contactEmail','contactMessage'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('contactSubject').value = '';
+    } catch(err) { showToast('Error: ' + err.message, 'error'); }
+    btn.disabled = false; btn.textContent = 'Send Message';
+  }
+</script>
+</body>
+</html>
