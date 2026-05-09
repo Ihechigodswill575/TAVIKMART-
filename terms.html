@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terms of Service — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <div class="nav-actions">
+      <a href="shop.html" class="nav-btn">Shop</a>
+      <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
+      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
+      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><span>Dashboard</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="static-page">
+  <h1>Terms of Service</h1>
+  <p class="lead">Last updated: January 2025. By using Tavikmart, you agree to these terms. Please read them carefully before shopping with us.</p>
+
+  <h2>1. Acceptance of Terms</h2>
+  <p>By accessing or using Tavikmart, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our platform.</p>
+
+  <h2>2. Account Responsibilities</h2>
+  <ul>
+    <li>You must provide accurate and truthful information when creating an account</li>
+    <li>You are responsible for maintaining the security of your account and password</li>
+    <li>You must be at least 18 years old or have parental consent to use Tavikmart</li>
+    <li>You may not use another person's account without permission</li>
+    <li>Tavikmart reserves the right to suspend accounts that violate these terms</li>
+  </ul>
+
+  <h2>3. Orders and Payments</h2>
+  <p>All orders placed on Tavikmart are subject to availability. We reserve the right to cancel orders in cases of pricing errors, stock unavailability or suspected fraud.</p>
+  <p>Payments are processed securely by Paystack. By making a purchase, you agree to Paystack's terms and conditions. Tavikmart does not store your payment card details.</p>
+
+  <h2>4. Delivery</h2>
+  <p>Delivery times are estimates and may vary based on location and circumstances beyond our control. Tavikmart is not liable for delays caused by third-party logistics providers or unforeseen events.</p>
+
+  <h2>5. Returns and Refunds</h2>
+  <ul>
+    <li>Returns are accepted within 7 days of delivery</li>
+    <li>Items must be in original condition and packaging</li>
+    <li>Refunds are processed within 5–10 business days after the return is received</li>
+    <li>Some items (food, personal care) are non-returnable for hygiene reasons</li>
+  </ul>
+
+  <h2>6. Prohibited Activities</h2>
+  <p>You may not use Tavikmart to:</p>
+  <ul>
+    <li>Purchase or sell illegal goods or services</li>
+    <li>Engage in fraudulent activities or misrepresentation</li>
+    <li>Attempt to hack, disrupt or damage our platform</li>
+    <li>Create multiple accounts to abuse promotions or flash sales</li>
+  </ul>
+
+  <h2>7. Intellectual Property</h2>
+  <p>All content on Tavikmart — including logos, images, text and design — is the property of Tavikmart and may not be copied or reproduced without permission.</p>
+
+  <h2>8. Limitation of Liability</h2>
+  <p>Tavikmart is not liable for any indirect, incidental or consequential damages arising from the use of our platform. Our total liability in any dispute shall not exceed the value of the order in question.</p>
+
+  <h2>9. Changes to Terms</h2>
+  <p>We reserve the right to update these terms at any time. Continued use of Tavikmart after changes constitutes acceptance of the new terms.</p>
+
+  <h2>10. Governing Law</h2>
+  <p>These terms are governed by the laws of the Federal Republic of Nigeria. Any disputes shall be resolved under Nigerian law.</p>
+
+  <h2>11. Contact</h2>
+  <p>For any questions about these terms, please <a href="contact.html" style="color:var(--accent2)">contact us</a>.</p>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>. All rights reserved.</p></div>
+</footer>
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+</body>
+</html>
