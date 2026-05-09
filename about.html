@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-top">
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <div class="nav-actions">
+      <a href="shop.html" class="nav-btn">Shop</a>
+      <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
+      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
+      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><span>Dashboard</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="static-page">
+  <h1>About Us</h1>
+  <p class="lead">Tavikmart is Nigeria's one-stop online marketplace for everything you need — from electronics and fashion to home essentials, beauty products, and more.</p>
+
+  <h2>Our Story</h2>
+  <p>Tavikmart was founded with a simple mission: to make online shopping easy, safe, and accessible for every Nigerian. We believe everyone deserves access to quality products at fair prices, delivered straight to their door.</p>
+  <p>From our humble beginnings, we've grown into a trusted marketplace with thousands of products across multiple categories, serving customers across Nigeria every day.</p>
+
+  <h2>What We Offer</h2>
+  <ul>
+    <li>📱 Electronics — phones, laptops, gadgets and accessories</li>
+    <li>👗 Fashion — clothing, shoes, bags and accessories</li>
+    <li>🏠 Home & Living — furniture, decor and household items</li>
+    <li>💄 Beauty — skincare, makeup and personal care</li>
+    <li>⚽ Sports — fitness equipment and sporting goods</li>
+    <li>📚 Books — educational and entertainment</li>
+    <li>🧸 Toys — kids' toys and games</li>
+    <li>🍎 Food — packaged food and groceries</li>
+  </ul>
+
+  <h2>Why Choose Tavikmart?</h2>
+  <p><strong>🔒 Secure Payments</strong> — All transactions are processed through Paystack, Nigeria's most trusted payment gateway. Your money is always safe.</p>
+  <p><strong>🚚 Fast Delivery</strong> — We work with reliable logistics partners to deliver your orders quickly across Nigeria.</p>
+  <p><strong>✅ Quality Guaranteed</strong> — Every product listed on Tavikmart goes through a quality check process.</p>
+  <p><strong>↩️ Easy Returns</strong> — Not satisfied with your order? Return it within 7 days, no questions asked.</p>
+
+  <h2>Our Mission</h2>
+  <p>To build the most trusted and convenient online shopping experience for Nigerians everywhere — making quality products accessible to all.</p>
+
+  <div style="margin-top:40px;padding:28px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center">
+    <p style="font-size:17px;margin-bottom:20px">Ready to start shopping?</p>
+    <a href="shop.html" class="btn btn-primary" style="font-size:15px;padding:14px 32px">Browse Products →</a>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>. All rights reserved.</p></div>
+</footer>
+<script src="js/firebase-config.js"></script>
+<script src="js/cart.js"></script>
+</body>
+</html>
