@@ -4,55 +4,39 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shop — Tavikmart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://www.gstatic.com"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
-    .shop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: 80vh; }
-    .sidebar { padding: 30px 24px; border-right: 1px solid var(--border); background: var(--bg2); }
-    .sidebar h3 { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; margin-top: 28px; }
-    .sidebar h3:first-child { margin-top: 0; }
-    .filter-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
-    .filter-list li a {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px; border-radius: var(--radius-sm); font-size: 14px;
-      color: var(--text2); transition: all var(--transition);
-    }
-    .filter-list li a:hover, .filter-list li a.active { background: var(--bg4); color: var(--text); }
-    .filter-list li a.active { border-left: 2px solid var(--accent); color: var(--accent2); }
-    .filter-count { font-size: 11px; background: var(--bg4); padding: 2px 6px; border-radius: 10px; }
-    .price-inputs { display: flex; gap: 8px; align-items: center; }
-    .price-inputs input {
-      flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 8px 10px; outline: none;
-    }
-    .price-inputs input:focus { border-color: var(--accent); }
-    .price-inputs span { color: var(--text2); font-size: 12px; }
-    .apply-filter { width: 100%; margin-top: 10px; }
-    .shop-main { padding: 30px 40px; }
-    .shop-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    .results-count { font-size: 14px; color: var(--text2); }
-    .sort-select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 8px 14px; border-radius: var(--radius-sm); outline: none; cursor: pointer; }
-    .sort-select:focus { border-color: var(--accent); }
-    @media (max-width: 900px) { .shop-layout { grid-template-columns: 1fr; } .sidebar { display: none; } .shop-main { padding: 20px; } }
+    .shop-layout{display:grid;grid-template-columns:220px 1fr;min-height:80vh}
+    .sidebar{padding:28px 20px;border-right:1px solid var(--border);background:var(--bg2)}
+    .sidebar h3{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;margin-top:24px}
+    .sidebar h3:first-child{margin-top:0}
+    .filter-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+    .filter-list li a{display:flex;align-items:center;padding:8px 12px;border-radius:var(--radius-sm);font-size:13px;color:var(--text2);transition:all var(--transition)}
+    .filter-list li a:hover,.filter-list li a.active{background:var(--bg4);color:var(--text)}
+    .filter-list li a.active{border-left:2px solid var(--accent);color:var(--accent2)}
+    .price-inputs{display:flex;gap:8px;align-items:center}
+    .price-inputs input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:12px;padding:8px 10px;outline:none}
+    .price-inputs input:focus{border-color:var(--accent)}
+    .price-inputs span{color:var(--text2);font-size:12px}
+    .shop-main{padding:28px 36px}
+    .shop-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+    .results-count{font-size:13px;color:var(--text2)}
+    .sort-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:13px;padding:8px 12px;border-radius:var(--radius-sm);outline:none;cursor:pointer}
+    .sort-select:focus{border-color:var(--accent)}
+    @media(max-width:900px){.shop-layout{grid-template-columns:1fr}.sidebar{display:none}.shop-main{padding:20px}}
   </style>
 </head>
 <body>
-
-<header class="navbar" id="navbar">
+<header class="navbar">
   <div class="nav-top">
-    <a href="index.html" class="logo-wrap">
-      <img src="assets/logo.png" alt="Tavikmart" class="logo-img"/>
-      <span class="logo-text">Tavikmart</span>
-    </a>
-    <div class="search-bar">
-      <input type="text" placeholder="Search products..." id="searchInput"/>
-      <button class="search-btn" onclick="handleSearch()">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      </button>
-    </div>
+    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <div class="search-bar"><input type="text" placeholder="Search products..." id="searchInput"/><button class="search-btn" onclick="handleSearch()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button></div>
     <div class="nav-actions">
       <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
       <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
@@ -81,7 +65,7 @@
   <aside class="sidebar">
     <h3>Categories</h3>
     <ul class="filter-list" id="categoryList">
-      <li><a href="shop.html?cat=all" class="active">All Products</a></li>
+      <li><a href="shop.html?cat=all">All Products</a></li>
       <li><a href="shop.html?cat=electronics">Electronics</a></li>
       <li><a href="shop.html?cat=fashion">Fashion</a></li>
       <li><a href="shop.html?cat=home">Home & Living</a></li>
@@ -90,34 +74,38 @@
       <li><a href="shop.html?cat=books">Books</a></li>
       <li><a href="shop.html?cat=toys">Toys</a></li>
       <li><a href="shop.html?cat=food">Food</a></li>
+      <li><a href="shop.html?flash=true" style="color:var(--orange)">⚡ Flash Sales</a></li>
     </ul>
-
     <h3>Price Range</h3>
     <div class="price-inputs">
-      <input type="number" id="minPrice" placeholder="Min ₦" />
+      <input type="number" id="minPrice" placeholder="Min ₦"/>
       <span>—</span>
-      <input type="number" id="maxPrice" placeholder="Max ₦" />
+      <input type="number" id="maxPrice" placeholder="Max ₦"/>
     </div>
-    <button class="btn btn-outline apply-filter" onclick="applyPriceFilter()">Apply</button>
+    <button class="btn btn-outline" onclick="applyPriceFilter()" style="width:100%;margin-top:10px;padding:8px">Apply</button>
   </aside>
 
   <main class="shop-main">
     <div class="shop-toolbar">
       <p class="results-count" id="resultsCount">Loading...</p>
       <select class="sort-select" id="sortSelect" onchange="sortProducts()">
-        <option value="newest">Newest</option>
+        <option value="newest">Newest First</option>
         <option value="price-asc">Price: Low to High</option>
         <option value="price-desc">Price: High to Low</option>
-        <option value="name">Name A-Z</option>
+        <option value="name">Name A–Z</option>
       </select>
     </div>
-    <div class="products-grid" id="productsGrid">
-      <div class="loading-spinner"><div class="spinner"></div><p>Loading products...</p></div>
-    </div>
+    <div class="products-grid" id="productsGrid"></div>
   </main>
 </div>
 
-<footer class="footer">
+<footer class="footer" style="margin-top:40px">
+  <div class="footer-top">
+    <div class="footer-brand"><img src="assets/logo.png" alt="Tavikmart" class="footer-logo"/><p>Your one-stop marketplace delivered to your door across Nigeria.</p></div>
+    <div class="footer-links"><h4>Shop</h4><a href="shop.html">All Products</a><a href="shop.html?flash=true">Flash Deals ⚡</a></div>
+    <div class="footer-links"><h4>Account</h4><a href="account.html">My Account</a><a href="cart.html">My Cart</a></div>
+    <div class="footer-links"><h4>Info</h4><a href="about.html">About Us</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></div>
+  </div>
   <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>.</p></div>
 </footer>
 
@@ -125,19 +113,25 @@
 <script src="js/cart.js"></script>
 <script>
   let allProducts = [];
-
   const params = new URLSearchParams(window.location.search);
   const currentCat = params.get('cat') || 'all';
   const searchQ = params.get('q') || '';
+  const isFlash = params.get('flash') === 'true';
+
+  // Show skeletons immediately
+  document.getElementById('productsGrid').innerHTML = renderSkeletons(12);
 
   // Highlight active category
   document.querySelectorAll('#categoryList a').forEach(a => {
-    a.classList.remove('active');
     const href = a.getAttribute('href');
-    if (href.includes(`cat=${currentCat}`)) a.classList.add('active');
+    if (isFlash && href.includes('flash=true')) a.classList.add('active');
+    else if (!isFlash && href.includes(`cat=${currentCat}`)) a.classList.add('active');
   });
 
-  if (searchQ) {
+  if (isFlash) {
+    document.getElementById('pageTitle').textContent = '⚡ Flash Sales';
+    document.getElementById('pageSubtitle').textContent = 'Limited time deals — grab them fast!';
+  } else if (searchQ) {
     document.getElementById('pageTitle').textContent = `Search: "${searchQ}"`;
     document.getElementById('searchInput').value = searchQ;
   } else if (currentCat !== 'all') {
@@ -148,23 +142,17 @@
     const grid = document.getElementById('productsGrid');
     try {
       let query = db.collection('products');
-      if (currentCat && currentCat !== 'all') {
-        query = query.where('category', '==', currentCat);
-      }
+      if (isFlash) query = query.where('flashSale', '==', true);
+      else if (currentCat && currentCat !== 'all') query = query.where('category', '==', currentCat);
       const snap = await query.orderBy('createdAt', 'desc').get();
       allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
       if (searchQ) {
         const q = searchQ.toLowerCase();
-        allProducts = allProducts.filter(p =>
-          p.name?.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q) ||
-          p.category?.toLowerCase().includes(q)
-        );
+        allProducts = allProducts.filter(p => p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q));
       }
-
       renderProducts(allProducts);
-    } catch (err) {
+      observeImages(grid);
+    } catch(err) {
       grid.innerHTML = `<div class="empty-state"><h3>Error loading products</h3><p>${err.message}</p></div>`;
     }
   }
@@ -172,11 +160,9 @@
   function renderProducts(products) {
     const grid = document.getElementById('productsGrid');
     document.getElementById('resultsCount').textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
-    if (products.length === 0) {
-      grid.innerHTML = `<div class="empty-state"><h3>No products found</h3><p>Try a different search or category.</p></div>`;
-      return;
-    }
+    if (products.length === 0) { grid.innerHTML = `<div class="empty-state"><h3>No products found</h3><p>Try a different search or category.</p></div>`; return; }
     grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+    observeImages(grid);
   }
 
   function sortProducts() {
@@ -191,8 +177,7 @@
   function applyPriceFilter() {
     const min = parseFloat(document.getElementById('minPrice').value) || 0;
     const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-    const filtered = allProducts.filter(p => p.price >= min && p.price <= max);
-    renderProducts(filtered);
+    renderProducts(allProducts.filter(p => p.price >= min && p.price <= max));
   }
 
   loadProducts();
