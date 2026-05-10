@@ -14,8 +14,231 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ===== GSAP ANIMATION INITIAL STATES ===== */
+    .hero-sub,
+    .hero-title,
+    .hero-desc,
+    .hero-cta {
+      opacity: 0;
+    }
+    .hero-card {
+      opacity: 0;
+      transform: translateY(40px) scale(0.9);
+    }
+    .marquee-wrap {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .flash-banner {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .cat-card {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .product-card {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .why-card {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .deals-banner {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    .section-header {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* ===== FLOATING PARTICLES IN HERO ===== */
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--accent2);
+      border-radius: 50%;
+      opacity: 0;
+    }
+
+    /* ===== HERO TITLE SPLIT ANIMATION ===== */
+    .hero-title .word {
+      display: inline-block;
+      overflow: hidden;
+    }
+    .hero-title .char {
+      display: inline-block;
+    }
+
+    /* ===== ANIMATED COUNTER FOR HERO CARD ===== */
+    .hero-card-counter {
+      font-family: var(--font-display);
+      font-size: 52px;
+      position: relative;
+      z-index: 1;
+      color: var(--accent2);
+      line-height: 1;
+    }
+
+    /* ===== MAGNETIC HOVER ON CTA ===== */
+    .hero-cta {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .hero-cta:hover::before {
+      opacity: 1;
+    }
+    .hero-cta span, .hero-cta svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== GLOWING BORDER ANIMATION ON NAV ===== */
+    .navbar {
+      animation: navReveal 0.6s ease forwards;
+      opacity: 0;
+    }
+    @keyframes navReveal {
+      to { opacity: 1; }
+    }
+
+    /* ===== SCROLL PROGRESS BAR ===== */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      z-index: 9999;
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px var(--accent2);
+    }
+
+    /* ===== PRODUCT CARD HOVER ENHANCEMENT ===== */
+    .product-card {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* ===== CATEGORY CARD STAGGER ===== */
+    .cat-card {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, border-color 0.2s;
+    }
+
+    /* ===== WHY CARD ICON BOUNCE ===== */
+    .why-icon {
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+    .why-card:hover .why-icon {
+      animation: iconBounce 0.5s ease;
+    }
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      70% { transform: translateY(-4px); }
+    }
+
+    /* ===== MARQUEE GLOW ===== */
+    .marquee-wrap {
+      position: relative;
+    }
+    .marquee-wrap::before,
+    .marquee-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .marquee-wrap::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    .marquee-wrap::after {
+      right: 0;
+      background: linear-gradient(-90deg, var(--accent), transparent);
+    }
+
+    /* ===== FLASH BANNER PULSE ===== */
+    .flash-label {
+      animation: flashPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes flashPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== LOADING OVERLAY ===== */
+    #pageLoader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loader-logo {
+      font-family: var(--font-display);
+      font-size: 48px;
+      letter-spacing: 4px;
+      color: var(--text);
+      opacity: 0;
+    }
+    .loader-bar {
+      width: 200px;
+      height: 2px;
+      background: var(--bg3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loader-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent2);
+    }
+  </style>
 </head>
 <body>
+
+<!-- PAGE LOADER -->
+<div id="pageLoader">
+  <div class="loader-logo" id="loaderLogo">TAVIKMART</div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+</div>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <header class="navbar">
   <div class="nav-top">
@@ -59,17 +282,22 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
+  <!-- Floating particles -->
+  <div class="hero-particles" id="heroParticles"></div>
   <div class="hero-content">
     <p class="hero-sub">Nigeria's #1 Online Store</p>
     <h1 class="hero-title">Everything<br/>You <span class="accent">Need.</span><br/>One Place.</h1>
     <p class="hero-desc">Premium products. Fast delivery. Secure payments via Paystack.</p>
-    <a href="shop.html" class="hero-cta">Shop Now <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="shop.html" class="hero-cta">
+      <span>Shop Now</span>
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
   </div>
   <div class="hero-visual">
     <div class="hero-card">
       <div class="hero-card-glow"></div>
-      <div style="font-size:64px;position:relative;z-index:1">🛒</div>
-      <p class="hero-card-label">10,000+ Products</p>
+      <div class="hero-card-counter" id="heroCounter">0</div>
+      <p class="hero-card-label">Products Available</p>
     </div>
   </div>
 </section>
@@ -86,7 +314,7 @@
   </div>
 </div>
 
-<!-- FLASH SALE BANNER (shown only when active) -->
+<!-- FLASH SALE BANNER -->
 <div id="flashSaleBanner" style="display:none;margin-top:40px">
   <div class="flash-banner">
     <div class="flash-left">
@@ -104,7 +332,7 @@
 </div>
 
 <!-- CATEGORIES -->
-<section class="section">
+<section class="section" id="categoriesSection">
   <div class="section-header"><h2 class="section-title">Shop by Category</h2><a href="shop.html" class="see-all">See All →</a></div>
   <div class="categories-grid">
     <a href="shop.html?cat=electronics" class="cat-card"><div class="cat-icon">📱</div><span>Electronics</span></a>
@@ -119,30 +347,30 @@
 </section>
 
 <!-- FEATURED PRODUCTS -->
-<section class="section">
+<section class="section" id="featuredSection">
   <div class="section-header"><h2 class="section-title">Featured Products</h2><a href="shop.html" class="see-all">View All →</a></div>
   <div class="products-grid" id="featuredProducts"></div>
 </section>
 
 <!-- DEALS BANNER -->
-<section class="deals-banner">
+<section class="deals-banner" id="dealsBanner">
   <div class="deals-content">
     <p class="deals-sub">ALWAYS ON</p>
     <h2>Best Sellers 🔥</h2>
     <p>Top-rated products loved by thousands of customers.</p>
-    <a href="shop.html" class="hero-cta">Shop Now</a>
+    <a href="shop.html" class="hero-cta"><span>Shop Now</span></a>
   </div>
   <div class="deals-visual"><div class="deals-circle c1"></div><div class="deals-circle c2"></div><div class="deals-circle c3"></div></div>
 </section>
 
 <!-- NEW ARRIVALS -->
-<section class="section">
+<section class="section" id="arrivalsSection">
   <div class="section-header"><h2 class="section-title">New Arrivals</h2><a href="shop.html?sort=newest" class="see-all">See More →</a></div>
   <div class="products-grid" id="newArrivals"></div>
 </section>
 
 <!-- WHY US -->
-<section class="why-section">
+<section class="why-section" id="whySection">
   <div class="why-grid">
     <div class="why-card"><div class="why-icon">🚚</div><h3>Fast Delivery</h3><p>Quick delivery across Nigeria right to your door.</p></div>
     <div class="why-card"><div class="why-icon">🔒</div><h3>Secure Payments</h3><p>All transactions secured by Paystack — Nigeria's most trusted gateway.</p></div>
@@ -187,7 +415,238 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cart.js"></script>
 <script>
-  // Show skeletons instantly
+
+  // ===== PAGE LOADER =====
+  const loaderLogo = document.getElementById('loaderLogo');
+  const loaderFill = document.getElementById('loaderFill');
+  const pageLoader = document.getElementById('pageLoader');
+
+  gsap.to(loaderLogo, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+  gsap.to(loaderFill, {
+    width: '100%',
+    duration: 1.2,
+    ease: 'power1.inOut',
+    onComplete: () => {
+      gsap.to(pageLoader, {
+        opacity: 0,
+        duration: 0.4,
+        delay: 0.1,
+        onComplete: () => {
+          pageLoader.style.display = 'none';
+          startHeroAnimations();
+        }
+      });
+    }
+  });
+
+  // ===== SCROLL PROGRESS =====
+  window.addEventListener('scroll', () => {
+    const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('scrollProgress').style.width = scrolled + '%';
+  });
+
+  // ===== FLOATING PARTICLES =====
+  function createParticles() {
+    const container = document.getElementById('heroParticles');
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      container.appendChild(p);
+
+      gsap.to(p, {
+        opacity: Math.random() * 0.6 + 0.1,
+        y: -60 - Math.random() * 80,
+        x: (Math.random() - 0.5) * 40,
+        duration: 3 + Math.random() * 4,
+        delay: Math.random() * 3,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+    }
+  }
+  createParticles();
+
+  // ===== HERO ANIMATIONS =====
+  function startHeroAnimations() {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    tl.to('.hero-sub', { opacity: 1, y: 0, duration: 0.6 })
+      .to('.hero-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power4.out' }, '-=0.3')
+      .to('.hero-desc', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+      .to('.hero-cta', { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.3')
+      .to('.hero-card', { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'back.out(1.4)' }, '-=0.5')
+      .to('.marquee-wrap', { opacity: 1, y: 0, duration: 0.5 }, '-=0.3');
+
+    // Animated counter
+    gsap.to({ val: 0 }, {
+      val: 10000,
+      duration: 2,
+      delay: 1.2,
+      ease: 'power2.out',
+      onUpdate: function() {
+        const el = document.getElementById('heroCounter');
+        if (el) el.textContent = Math.round(this.targets()[0].val).toLocaleString() + '+';
+      }
+    });
+  }
+
+  // ===== SCROLL TRIGGER ANIMATIONS =====
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Flash banner
+  ScrollTrigger.create({
+    trigger: '#flashSaleBanner',
+    start: 'top 85%',
+    onEnter: () => {
+      gsap.to('.flash-banner', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' });
+    }
+  });
+
+  // Section headers
+  gsap.utils.toArray('.section-header').forEach(header => {
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 88%',
+      onEnter: () => {
+        gsap.to(header, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+      }
+    });
+  });
+
+  // Category cards stagger
+  ScrollTrigger.create({
+    trigger: '.categories-grid',
+    start: 'top 85%',
+    onEnter: () => {
+      gsap.to('.cat-card', {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.07,
+        ease: 'back.out(1.5)'
+      });
+    }
+  });
+
+  // Product cards stagger — featured
+  function animateProductCards(gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    const observer = new MutationObserver(() => {
+      const cards = grid.querySelectorAll('.product-card');
+      if (cards.length > 0) {
+        observer.disconnect();
+        gsap.to(cards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: grid,
+            start: 'top 88%'
+          }
+        });
+      }
+    });
+    observer.observe(grid, { childList: true });
+  }
+  animateProductCards('featuredProducts');
+  animateProductCards('newArrivals');
+
+  // Deals banner
+  ScrollTrigger.create({
+    trigger: '#dealsBanner',
+    start: 'top 80%',
+    onEnter: () => {
+      gsap.to('.deals-banner', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' });
+    }
+  });
+
+  // Why cards stagger
+  ScrollTrigger.create({
+    trigger: '#whySection',
+    start: 'top 85%',
+    onEnter: () => {
+      gsap.to('.why-card', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: 'power2.out'
+      });
+    }
+  });
+
+  // ===== PRODUCT CARD HOVER 3D TILT =====
+  document.addEventListener('mousemove', (e) => {
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const distance = Math.sqrt(x * x + y * y);
+      if (distance < 150) {
+        const rotX = (y / rect.height) * 8;
+        const rotY = -(x / rect.width) * 8;
+        gsap.to(card, {
+          rotationX: rotX,
+          rotationY: rotY,
+          duration: 0.3,
+          ease: 'power1.out',
+          transformPerspective: 800
+        });
+      } else {
+        gsap.to(card, {
+          rotationX: 0,
+          rotationY: 0,
+          duration: 0.5,
+          ease: 'power1.out'
+        });
+      }
+    });
+  });
+
+  // ===== MAGNETIC EFFECT ON HERO CTA =====
+  const heroCta = document.querySelector('.hero-cta');
+  if (heroCta) {
+    heroCta.addEventListener('mousemove', (e) => {
+      const rect = heroCta.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      gsap.to(heroCta, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power1.out' });
+    });
+    heroCta.addEventListener('mouseleave', () => {
+      gsap.to(heroCta, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+    });
+  }
+
+  // ===== CATEGORY CARD HOVER =====
+  document.querySelectorAll('.cat-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      gsap.to(card.querySelector('.cat-icon'), { scale: 1.3, rotation: 10, duration: 0.3, ease: 'back.out(2)' });
+    });
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card.querySelector('.cat-icon'), { scale: 1, rotation: 0, duration: 0.3, ease: 'power2.out' });
+    });
+  });
+
+  // ===== NAVBAR SCROLL EFFECT =====
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const current = window.scrollY;
+    if (current > 100) {
+      gsap.to('.navbar', { y: current > lastScroll ? -80 : 0, duration: 0.3, ease: 'power2.out' });
+    } else {
+      gsap.to('.navbar', { y: 0, duration: 0.3 });
+    }
+    lastScroll = current;
+  });
+
+  // ===== EXISTING FIREBASE LOGIC =====
   document.getElementById('featuredProducts').innerHTML = renderSkeletons(8);
   document.getElementById('newArrivals').innerHTML = renderSkeletons(8);
 
@@ -213,6 +672,9 @@
       document.getElementById('cdHours').textContent = String(h).padStart(2, '0');
       document.getElementById('cdMins').textContent = String(m).padStart(2, '0');
       document.getElementById('cdSecs').textContent = String(s).padStart(2, '0');
+
+      // Pulse animation on seconds
+      gsap.fromTo('#cdSecs', { scale: 1.2 }, { scale: 1, duration: 0.2, ease: 'power2.out' });
     }
     tick();
     setInterval(tick, 1000);
