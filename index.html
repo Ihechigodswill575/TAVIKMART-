@@ -13,499 +13,567 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <!-- Lightweight GSAP core only — no heavy plugins -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <style>
-    /* ===== PERFORMANCE: GPU only transforms ===== */
-    * { will-change: auto; }
+    /* ===== RESET & BASE ===== */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity 0.5s ease,transform 0.5s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.05s}.d2{transition-delay:.1s}.d3{transition-delay:.15s}
+    .d4{transition-delay:.2s}.d5{transition-delay:.25s}.d6{transition-delay:.3s}
+    .d7{transition-delay:.35s}.d8{transition-delay:.4s}
 
     /* ===== LOADER ===== */
-    #pageLoader {
-      position: fixed; inset: 0;
-      background: #080808;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-    .loader-brand {
-      font-family: var(--font-display);
-      font-size: 60px;
-      letter-spacing: 8px;
-      color: #f0f0f0;
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    .loader-bar {
-      width: 180px; height: 2px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .loader-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      width: 0%;
-      border-radius: 2px;
-    }
+    #pageLoader{position:fixed;inset:0;background:#0a0a0a;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+    .ld-logo{opacity:0;transform:translateY(16px)}
+    .ld-logo img{height:52px;object-fit:contain}
+    .ld-tagline{font-size:11px;letter-spacing:4px;color:#a0a0a0;text-transform:uppercase;opacity:0}
+    .ld-bar{width:160px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+    .ld-fill{height:100%;background:linear-gradient(90deg,#f37021,#ffa040);width:0%}
 
-    /* ===== SCROLL PROGRESS ===== */
-    #scrollBar {
-      position: fixed; top: 0; left: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      z-index: 9999;
-      width: 0%;
-      transform-origin: left;
-    }
+    /* ===== SCROLL BAR ===== */
+    #scrollBar{position:fixed;top:0;left:0;height:2px;background:#f37021;z-index:9999;width:0%}
 
-    /* ===== HERO ===== */
-    .hero-bg {
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 60% at 70% 50%, rgba(0,113,227,0.1) 0%, transparent 70%),
-                  radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,212,255,0.05) 0%, transparent 70%);
-    }
+    /* ===== TOP INFO BAR ===== */
+    .top-bar{background:#111;border-bottom:1px solid rgba(255,255,255,0.06);padding:5px 0;font-size:11px;color:#a0a0a0}
+    .top-bar-inner{max-width:1380px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between}
+    .top-links{display:flex;gap:14px}
+    .top-links a{color:#a0a0a0;transition:color .2s}
+    .top-links a:hover{color:#f37021}
 
-    /* Scan line — pure CSS, no JS cost */
-    .hero-scanline {
-      position: absolute; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
-      pointer-events: none;
-      animation: scanMove 4s linear infinite;
-      top: 0;
-    }
-    @keyframes scanMove {
-      0% { transform: translateY(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(100vh); opacity: 0; }
-    }
+    /* ===== NAVBAR ===== */
+    .navbar{background:#111;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:0;z-index:1000;opacity:0;transition:opacity .4s,transform .3s}
+    .navbar.loaded{opacity:1}
+    .nav-inner{max-width:1380px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+    .logo-wrap{flex-shrink:0}
+    .logo-img{height:36px;width:auto;object-fit:contain}
 
-    /* Hero text initial states */
-    .hero-sub { opacity: 0; transform: translateY(16px); }
-    .hero-title-line { overflow: hidden; display: block; }
-    .hero-title-inner { display: block; transform: translateY(100%); }
-    .hero-desc { opacity: 0; transform: translateY(14px); }
-    .hero-cta { opacity: 0; transform: translateY(14px); }
-    .hero-visual { opacity: 0; transform: translateX(40px); }
+    /* Search */
+    .search-wrap{flex:1;display:flex;border-radius:4px;overflow:hidden;border:2px solid #f37021;max-width:640px}
+    .search-cat-select{background:#1e1e1e;border:none;border-right:1px solid rgba(255,255,255,0.07);color:#a0a0a0;font-family:'DM Sans',sans-serif;font-size:12px;padding:0 10px;cursor:pointer;outline:none;white-space:nowrap;min-width:80px}
+    .search-field{flex:1;background:#1e1e1e;border:none;outline:none;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px}
+    .search-field::placeholder{color:#666}
+    .search-go{background:#f37021;border:none;color:#fff;padding:0 16px;cursor:pointer;display:flex;align-items:center;transition:background .2s;flex-shrink:0}
+    .search-go:hover{background:#e06010}
 
-    /* Hero card glow — pure CSS */
-    .hero-card-glow {
-      position: absolute; top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(ellipse at center, rgba(0,113,227,0.12) 0%, transparent 60%);
-      animation: glowPulse 4s ease-in-out infinite;
-    }
-    @keyframes glowPulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+    /* Nav right */
+    .nav-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
+    .nav-icon-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 10px;border-radius:4px;color:#a0a0a0;font-size:10px;font-weight:500;cursor:pointer;transition:all .2s;position:relative;white-space:nowrap}
+    .nav-icon-btn:hover{background:#1a1a1a;color:#f0f0f0}
+    .nav-cart-badge{position:absolute;top:2px;right:5px;background:#f37021;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 
-    /* Marquee */
-    .marquee-wrap { opacity: 0; }
+    /* ===== CATEGORY BAR ===== */
+    .cat-bar{background:#181818;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .cat-bar-inner{max-width:1380px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:0;overflow-x:auto;scrollbar-width:none}
+    .cat-bar-inner::-webkit-scrollbar{display:none}
+    .cat-bar-link{font-size:12px;font-weight:500;color:#a0a0a0;padding:9px 14px;white-space:nowrap;transition:all .2s;border-bottom:2px solid transparent;cursor:pointer}
+    .cat-bar-link:hover,.cat-bar-link.active{color:#f37021;border-bottom-color:#f37021}
 
-    /* ===== SCROLL REVEAL — CSS classes toggled by IntersectionObserver ===== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .reveal-left {
-      opacity: 0;
-      transform: translateX(-28px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-    .reveal-left.visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    .reveal-right {
-      opacity: 0;
-      transform: translateX(28px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-    .reveal-right.visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    /* ===== MARQUEE ===== */
+    .marquee-strip{background:#f37021;padding:6px 0;overflow:hidden}
+    .marquee-track{display:flex;gap:36px;animation:marqueeAnim 22s linear infinite;white-space:nowrap;width:max-content}
+    .marquee-track span{font-size:10px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase}
+    .marquee-track .dot{opacity:.5}
+    @keyframes marqueeAnim{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    /* Stagger delay utility */
-    .d1 { transition-delay: 0.05s; }
-    .d2 { transition-delay: 0.12s; }
-    .d3 { transition-delay: 0.19s; }
-    .d4 { transition-delay: 0.26s; }
-    .d5 { transition-delay: 0.33s; }
-    .d6 { transition-delay: 0.40s; }
-    .d7 { transition-delay: 0.47s; }
-    .d8 { transition-delay: 0.54s; }
+    /* ===== PAGE WRAP ===== */
+    .pw{max-width:1380px;margin:0 auto;padding:0 16px}
 
-    /* Category card hover — CSS only, no JS */
-    .cat-card { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s, background 0.2s; }
-    .cat-card:hover { transform: translateY(-6px) scale(1.04); }
-    .cat-icon { display: inline-block; transition: transform 0.25s; }
-    .cat-card:hover .cat-icon { transform: scale(1.25) rotate(8deg); }
+    /* ===== FLASH STRIP ===== */
+    .flash-strip{background:linear-gradient(90deg,#1a0000,#2a0808);border:1px solid rgba(220,50,50,.2);border-radius:6px;overflow:hidden;display:none;margin-top:14px}
+    .flash-inner{display:flex;align-items:stretch}
+    .flash-badge{background:#e03131;padding:12px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
+    .flash-badge-icon{font-size:20px;animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .flash-badge-text{font-size:8px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase}
+    .flash-title-area{padding:12px 16px;border-right:1px solid rgba(255,255,255,.05)}
+    .flash-sale-name{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:#fff}
+    .flash-sale-sub{font-size:11px;color:#a0a0a0;margin-top:2px}
+    .flash-timer{padding:8px 16px;display:flex;gap:6px;align-items:center}
+    .fcd{background:rgba(0,0,0,.3);border:1px solid rgba(220,50,50,.2);border-radius:4px;padding:5px 8px;text-align:center;min-width:42px}
+    .fcd-n{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#e03131;line-height:1}
+    .fcd-l{font-size:8px;color:#a0a0a0;font-weight:600;letter-spacing:1px}
+    .fcd-sep{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#e03131}
+    .flash-see-all{margin-left:auto;padding:0 16px;display:flex;align-items:center}
+    .flash-see-all a{background:#e03131;color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:4px;white-space:nowrap;transition:background .2s}
+    .flash-see-all a:hover{background:#c0392b}
 
-    /* Product card hover — CSS only */
-    .product-card { transition: transform 0.25s ease, border-color 0.2s, box-shadow 0.25s; }
-    .product-card:hover { transform: translateY(-5px); border-color: rgba(0,113,227,0.4) !important; box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
-    .product-img-wrap img { transition: transform 0.4s ease; }
-    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+    /* ===== JUMIA MAIN LAYOUT ===== */
+    .home-grid{display:grid;grid-template-columns:200px 1fr;gap:14px;margin-top:14px}
 
-    /* Why icon bounce — CSS only */
-    .why-icon { display: inline-block; }
-    .why-card:hover .why-icon { animation: iconBounce 0.45s ease; }
-    @keyframes iconBounce { 0%,100%{transform:translateY(0)} 45%{transform:translateY(-10px)} 70%{transform:translateY(-4px)} }
+    /* Sidebar */
+    .sidebar{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;height:fit-content}
+    .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;color:#a0a0a0;border-bottom:1px solid rgba(255,255,255,0.05);transition:all .2s;cursor:pointer}
+    .sidebar-item:last-child{border-bottom:none}
+    .sidebar-item:hover{background:#1e1e1e;color:#f0f0f0;padding-left:18px}
+    .sidebar-item-icon{font-size:15px;flex-shrink:0}
 
-    /* Flash label pulse */
-    .flash-label { animation: flashPulse 1.5s ease-in-out infinite; }
-    @keyframes flashPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    /* ===== HERO BANNER ===== */
+    .hero-banner{border-radius:6px;overflow:hidden;background:linear-gradient(130deg,#060e1e 0%,#0d1e40 60%,#0a1530 100%);min-height:310px;position:relative;display:flex;align-items:center;padding:36px 44px}
+    .hero-bg-glow{position:absolute;inset:0;background:radial-gradient(ellipse 65% 65% at 75% 50%,rgba(0,100,220,.12) 0%,transparent 70%);pointer-events:none}
+    .hero-content{position:relative;z-index:2;max-width:440px}
+    .hero-eyebrow{font-size:10px;letter-spacing:3px;color:#f37021;text-transform:uppercase;margin-bottom:10px;opacity:0;transform:translateY(8px)}
+    .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,5vw,70px);line-height:.93;letter-spacing:1px;margin-bottom:14px}
+    .hero-tline{display:block;overflow:hidden}
+    .hero-tinner{display:block;transform:translateY(110%)}
+    .hero-desc{font-size:14px;color:#a0a0a0;margin-bottom:22px;line-height:1.6;opacity:0;transform:translateY(8px)}
+    .hero-btn{display:inline-flex;align-items:center;gap:8px;background:#f37021;color:#fff;font-size:13px;font-weight:700;padding:11px 22px;border-radius:4px;transition:all .25s;opacity:0;transform:translateY(8px)}
+    .hero-btn:hover{background:#e06010;transform:translateY(-2px)!important;box-shadow:0 8px 20px rgba(243,112,33,.3)}
 
-    /* Deals circles rotate — pure CSS */
-    .c1 { animation: spin1 20s linear infinite; transform-origin: center; }
-    .c2 { animation: spin2 14s linear infinite; transform-origin: center; }
-    .c3 { animation: spin1 9s linear infinite; transform-origin: center; }
-    @keyframes spin1 { to{transform:rotate(360deg)} }
-    @keyframes spin2 { to{transform:rotate(-360deg)} }
+    /* Hero right stats */
+    .hero-stats{position:absolute;right:32px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:2}
+    .hstat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:12px 16px;text-align:center;min-width:100px;backdrop-filter:blur(8px)}
+    .hstat-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#f37021;line-height:1}
+    .hstat-label{font-size:9px;color:#a0a0a0;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 
-    /* CTA shimmer effect — CSS only */
-    .hero-cta { position: relative; overflow: hidden; }
-    .hero-cta::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.12) 50%, transparent 80%);
-      transform: translateX(-100%);
-      transition: transform 0.45s;
-    }
-    .hero-cta:hover::after { transform: translateX(100%); }
+    /* Hero card glow */
+    .hero-card-glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at center,rgba(0,113,227,.08) 0%,transparent 60%);animation:hglow 4s ease-in-out infinite;pointer-events:none}
+    @keyframes hglow{0%,100%{opacity:.4}50%{opacity:1}}
 
-    /* Navbar */
-    .navbar { opacity: 0; transition: opacity 0.4s; }
-    .navbar.loaded { opacity: 1; }
+    /* ===== PROMO GRID ===== */
+    .promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .promo-card{border-radius:6px;padding:18px;min-height:110px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:transform .2s;position:relative;overflow:hidden}
+    .promo-card:hover{transform:scale(1.02)}
+    .promo-electronics{background:linear-gradient(135deg,#060e20,#0d2048)}
+    .promo-fashion{background:linear-gradient(135deg,#1a0800,#3a1500)}
+    .promo-home{background:linear-gradient(135deg,#071207,#0f2810)}
+    .promo-text-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:5px}
+    .promo-text-title{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;margin-bottom:4px}
+    .promo-text-sub{font-size:11px;color:#a0a0a0}
+    .promo-emoji{font-size:44px;opacity:.65;flex-shrink:0}
+
+    /* ===== SECTION HEADER — Jumia style ===== */
+    .sec-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 0 10px;border-bottom:2px solid #f37021;margin-bottom:12px}
+    .sec-hd-l{display:flex;align-items:center;gap:8px}
+    .sec-hd-icon{font-size:17px}
+    .sec-hd-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.5px}
+    .sec-hd-badge{background:#f37021;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+    .sec-hd-link{font-size:11px;font-weight:600;color:#f37021;display:flex;align-items:center;gap:3px;transition:opacity .2s}
+    .sec-hd-link:hover{opacity:.7}
+
+    /* ===== CATEGORY ICON GRID ===== */
+    .cat-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+    .cat-card{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px}
+    .cat-card:hover{border-color:rgba(243,112,33,.4);background:#1e1e1e;transform:translateY(-3px)}
+    .cat-card-icon{font-size:22px}
+    .cat-card-name{font-size:10px;font-weight:500;color:#a0a0a0}
+    .cat-card:hover .cat-card-name{color:#f0f0f0}
+
+    /* ===== PRODUCT GRID ===== */
+    .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+    .prod-card{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+    .prod-card:hover{transform:translateY(-4px);border-color:rgba(243,112,33,.3);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+    .prod-img-wrap{width:100%;aspect-ratio:1;background:#1e1e1e;overflow:hidden;position:relative}
+    .prod-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+    .prod-card:hover .prod-img-wrap img{transform:scale(1.06)}
+    .prod-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;z-index:1}
+    .pb-deal{background:#e03131;color:#fff}
+    .pb-flash{background:#f37021;color:#fff}
+    .pb-new{background:#0071e3;color:#fff}
+    .prod-wl-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);border:none;color:#a0a0a0;width:26px;height:26px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;z-index:2}
+    .prod-wl-btn:hover,.prod-wl-btn.active{color:#ff4d6d;background:rgba(255,77,109,.15)}
+    .prod-info{padding:9px}
+    .prod-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f37021;margin-bottom:2px}
+    .prod-name{font-size:12px;font-weight:500;color:#f0f0f0;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .prod-price-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+    .prod-price{font-size:14px;font-weight:700;color:#f37021}
+    .prod-old-price{font-size:10px;color:#666;text-decoration:line-through}
+    .prod-disc{font-size:9px;font-weight:700;color:#00c864}
+    .prod-add-btn{background:#f37021;color:#fff;border:none;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+    .prod-add-btn:hover{background:#e06010;transform:scale(1.1)}
+
+    /* ===== WHY STRIP ===== */
+    .why-strip{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:6px;display:grid;grid-template-columns:repeat(4,1fr);margin-top:20px;overflow:hidden}
+    .why-item{display:flex;align-items:center;gap:10px;padding:16px;border-right:1px solid rgba(255,255,255,.06)}
+    .why-item:last-child{border-right:none}
+    .why-icon{font-size:26px;flex-shrink:0}
+    .why-title{font-size:12px;font-weight:600;margin-bottom:2px}
+    .why-sub{font-size:10px;color:#a0a0a0}
+
+    /* ===== FOOTER ===== */
+    .footer{background:#111;border-top:1px solid rgba(255,255,255,.06);margin-top:36px;padding:36px 0 18px}
+    .footer-inner{max-width:1380px;margin:0 auto;padding:0 16px}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:18px}
+    .footer-logo{height:36px;object-fit:contain;margin-bottom:10px}
+    .footer-desc{font-size:12px;color:#a0a0a0;line-height:1.7;max-width:220px}
+    .footer-col h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;color:#f0f0f0}
+    .footer-col a{display:block;font-size:12px;color:#a0a0a0;margin-bottom:6px;transition:color .2s}
+    .footer-col a:hover{color:#f37021}
+    .footer-bottom-bar{text-align:center;font-size:11px;color:#666}
+
+    /* ===== SKELETON ===== */
+    .skeleton{background:linear-gradient(90deg,#181818 25%,#222 50%,#181818 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skeleton-card{background:#141414;border:1px solid rgba(255,255,255,.07);border-radius:6px;overflow:hidden}
+    .skeleton-img{width:100%;aspect-ratio:1}
+    .skeleton-text{height:10px;margin:10px 10px 6px}
+    .skeleton-text-sm{height:9px;width:60%;margin:0 10px 6px}
+    .skeleton-price{height:12px;width:40%;margin:0 10px 10px}
+    .loading-spinner{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:50px;color:#a0a0a0}
+    .spinner{width:26px;height:26px;border:3px solid rgba(255,255,255,.07);border-top-color:#f37021;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty-state{grid-column:1/-1;text-align:center;padding:50px;color:#a0a0a0}
+    .empty-state h3{font-size:17px;margin-bottom:6px;color:#f0f0f0}
+    .toast{position:fixed;bottom:22px;right:22px;background:#1e1e1e;border:1px solid rgba(255,255,255,.07);border-left:3px solid #f37021;padding:10px 14px;border-radius:5px;font-size:12px;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s;max-width:240px;pointer-events:none}
+    .toast.show{transform:translateY(0);opacity:1}
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:1024px){.home-grid{grid-template-columns:1fr}.sidebar{display:none}.cat-grid{grid-template-columns:repeat(4,1fr)}.why-strip{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.promo-grid{grid-template-columns:1fr}}
+    @media(max-width:768px){.nav-inner{flex-wrap:wrap;gap:8px}.search-wrap{order:3;flex:1 1 100%}.hero-stats{display:none}.hero-banner{min-height:200px;padding:22px}.cat-grid{grid-template-columns:repeat(4,1fr)}.prod-grid{grid-template-columns:repeat(2,1fr)}.why-strip{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr}.promo-grid{grid-template-columns:1fr}.top-bar{display:none}}
+    @media(max-width:480px){.cat-grid{grid-template-columns:repeat(4,1fr)}.prod-grid{grid-template-columns:repeat(2,1fr)}.nav-icon-btn span{display:none}}
   </style>
 </head>
 <body>
 
 <!-- LOADER -->
 <div id="pageLoader">
-  <div class="loader-brand" id="loaderBrand">TAVIKMART</div>
-  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="ld-logo" id="ldLogo"><img src="assets/logo.png" alt="Tavikmart"/></div>
+  <div class="ld-tagline" id="ldTag">Nigeria's #1 Online Store</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
 </div>
 
 <!-- SCROLL PROGRESS -->
 <div id="scrollBar"></div>
 
-<header class="navbar">
-  <div class="nav-top">
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <span>🇳🇬 Delivering across all 36 states in Nigeria</span>
+    <div class="top-links">
+      <a href="about.html">About</a>
+      <a href="contact.html">Help & Support</a>
+      <a href="account.html">Track Order</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
     <a href="index.html" class="logo-wrap">
       <img src="assets/logo.png" alt="Tavikmart" class="logo-img" fetchpriority="high"/>
     </a>
-    <div class="search-bar">
-      <input type="text" placeholder="Search products, brands & more..." id="searchInput"/>
-      <button class="search-btn" onclick="handleSearch()">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <div class="search-wrap">
+      <select class="search-cat-select">
+        <option>All</option>
+        <option>Electronics</option>
+        <option>Fashion</option>
+        <option>Home</option>
+        <option>Beauty</option>
+        <option>Sports</option>
+        <option>Books</option>
+        <option>Food</option>
+      </select>
+      <input type="text" class="search-field" placeholder="Search products, brands & more..." id="searchInput"/>
+      <button class="search-go" onclick="handleSearch()">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       </button>
     </div>
-    <div class="nav-actions">
-      <a href="auth.html" class="nav-btn" id="authBtn">
+    <div class="nav-right">
+      <a href="auth.html" class="nav-icon-btn" id="authBtn">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span id="authLabel">Sign In</span>
       </a>
-      <a href="cart.html" class="nav-btn cart-btn">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="cart-count" id="cartCount">0</span>
+      <a href="account.html" class="nav-icon-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Account</span>
       </a>
-      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none">
+      <a href="cart.html" class="nav-icon-btn" style="position:relative">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart</span>
+        <div class="nav-cart-badge" id="cartCount">0</div>
+      </a>
+      <a href="dashboard.html" class="nav-icon-btn" id="adminBtn" style="display:none">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         <span>Dashboard</span>
       </a>
     </div>
   </div>
-  <nav class="nav-categories">
-    <a href="shop.html?cat=all" class="active">All</a>
-    <a href="shop.html?cat=electronics">Electronics</a>
-    <a href="shop.html?cat=fashion">Fashion</a>
-    <a href="shop.html?cat=home">Home & Living</a>
-    <a href="shop.html?cat=beauty">Beauty</a>
-    <a href="shop.html?cat=sports">Sports</a>
-    <a href="shop.html?cat=books">Books</a>
-    <a href="shop.html?cat=toys">Toys</a>
-    <a href="shop.html?cat=food">Food</a>
-  </nav>
-</header>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-scanline"></div>
-
-  <div class="hero-content" style="position:relative;z-index:2;max-width:560px">
-    <p class="hero-sub">Nigeria's #1 Online Store</p>
-    <h1 class="hero-title">
-      <span class="hero-title-line"><span class="hero-title-inner">Everything</span></span>
-      <span class="hero-title-line"><span class="hero-title-inner">You <span class="accent">Need.</span></span></span>
-      <span class="hero-title-line"><span class="hero-title-inner">One Place.</span></span>
-    </h1>
-    <p class="hero-desc">Premium products. Fast delivery. Secure payments via Paystack.</p>
-    <a href="shop.html" class="hero-cta">
-      Shop Now
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
-  </div>
-
-  <div class="hero-visual">
-    <div class="hero-card">
-      <div class="hero-card-glow"></div>
-      <div style="position:relative;z-index:1">
-        <p style="font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:4px">Products</p>
-        <p style="font-family:var(--font-display);font-size:48px;color:var(--accent2);line-height:1" id="heroCounter">0+</p>
-        <p style="font-size:11px;color:var(--text2);margin-top:2px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">Available now</p>
-        <p style="font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:4px">Delivery</p>
-        <p style="font-family:var(--font-display);font-size:40px;color:var(--accent2);line-height:1">2–5</p>
-        <p style="font-size:11px;color:var(--text2);margin-top:2px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">Business days</p>
-        <p style="font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:4px">Secured by</p>
-        <p style="font-family:var(--font-display);font-size:26px;color:#00c864;line-height:1">Paystack ✓</p>
-        <p style="font-size:11px;color:var(--text2);margin-top:2px">100% safe payments</p>
-      </div>
+  <!-- Cat bar -->
+  <div class="cat-bar">
+    <div class="cat-bar-inner">
+      <a href="shop.html?cat=all" class="cat-bar-link active">🏠 Home</a>
+      <a href="shop.html?cat=electronics" class="cat-bar-link">📱 Electronics</a>
+      <a href="shop.html?cat=fashion" class="cat-bar-link">👗 Fashion</a>
+      <a href="shop.html?cat=home" class="cat-bar-link">🏡 Home & Living</a>
+      <a href="shop.html?cat=beauty" class="cat-bar-link">💄 Beauty</a>
+      <a href="shop.html?cat=sports" class="cat-bar-link">⚽ Sports</a>
+      <a href="shop.html?cat=books" class="cat-bar-link">📚 Books</a>
+      <a href="shop.html?cat=toys" class="cat-bar-link">🧸 Toys</a>
+      <a href="shop.html?cat=food" class="cat-bar-link">🍎 Food</a>
+      <a href="shop.html?flash=true" class="cat-bar-link" style="color:#f37021">⚡ Flash Deals</a>
     </div>
   </div>
-</section>
+</header>
 
 <!-- MARQUEE -->
-<div class="marquee-wrap">
+<div class="marquee-strip">
   <div class="marquee-track">
     <span>FREE DELIVERY ON ORDERS OVER ₦50,000</span><span class="dot">●</span>
     <span>SECURE PAYMENTS VIA PAYSTACK</span><span class="dot">●</span>
-    <span>ELECTRONICS · FASHION · HOME · BEAUTY · SPORTS</span><span class="dot">●</span>
+    <span>SHOP ELECTRONICS · FASHION · HOME · BEAUTY</span><span class="dot">●</span>
     <span>FREE DELIVERY ON ORDERS OVER ₦50,000</span><span class="dot">●</span>
     <span>SECURE PAYMENTS VIA PAYSTACK</span><span class="dot">●</span>
-    <span>ELECTRONICS · FASHION · HOME · BEAUTY · SPORTS</span><span class="dot">●</span>
+    <span>SHOP ELECTRONICS · FASHION · HOME · BEAUTY</span><span class="dot">●</span>
   </div>
 </div>
 
-<!-- FLASH SALE -->
-<div id="flashSaleBanner" style="display:none;margin-top:40px">
-  <div class="flash-banner reveal">
-    <div class="flash-left">
-      <p class="flash-label">⚡ Flash Sale</p>
-      <h2 class="flash-title" id="flashTitle">MEGA DEALS</h2>
-      <p class="flash-desc" id="flashDesc">Limited time offers — grab them before they're gone!</p>
-      <a href="shop.html?flash=true" class="btn btn-danger" style="margin-top:16px;border-color:var(--red);color:var(--red)">View All Flash Deals →</a>
+<!-- MAIN -->
+<div class="pw">
+
+  <!-- FLASH STRIP -->
+  <div class="flash-strip reveal" id="flashSaleBanner">
+    <div class="flash-inner">
+      <div class="flash-badge">
+        <div class="flash-badge-icon">⚡</div>
+        <div class="flash-badge-text">Flash</div>
+      </div>
+      <div class="flash-title-area">
+        <div class="flash-sale-name" id="flashTitle">MEGA DEALS</div>
+        <div class="flash-sale-sub" id="flashDesc">Limited time offers</div>
+      </div>
+      <div class="flash-timer" id="flashCountdown">
+        <div class="fcd"><div class="fcd-n" id="cdHours">00</div><div class="fcd-l">HRS</div></div>
+        <div class="fcd-sep">:</div>
+        <div class="fcd"><div class="fcd-n" id="cdMins">00</div><div class="fcd-l">MIN</div></div>
+        <div class="fcd-sep">:</div>
+        <div class="fcd"><div class="fcd-n" id="cdSecs">00</div><div class="fcd-l">SEC</div></div>
+      </div>
+      <div class="flash-see-all"><a href="shop.html?flash=true">See All →</a></div>
     </div>
-    <div class="flash-countdown" id="flashCountdown">
-      <div class="countdown-box"><div class="countdown-num" id="cdHours">00</div><div class="countdown-label">HOURS</div></div>
-      <div class="countdown-box"><div class="countdown-num" id="cdMins">00</div><div class="countdown-label">MINS</div></div>
-      <div class="countdown-box"><div class="countdown-num" id="cdSecs">00</div><div class="countdown-label">SECS</div></div>
+  </div>
+
+  <!-- JUMIA LAYOUT -->
+  <div class="home-grid">
+
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="sidebar">
+        <a href="shop.html?cat=electronics" class="sidebar-item"><span class="sidebar-item-icon">📱</span> Electronics</a>
+        <a href="shop.html?cat=fashion" class="sidebar-item"><span class="sidebar-item-icon">👗</span> Fashion</a>
+        <a href="shop.html?cat=home" class="sidebar-item"><span class="sidebar-item-icon">🏠</span> Home & Living</a>
+        <a href="shop.html?cat=beauty" class="sidebar-item"><span class="sidebar-item-icon">💄</span> Beauty</a>
+        <a href="shop.html?cat=sports" class="sidebar-item"><span class="sidebar-item-icon">⚽</span> Sports</a>
+        <a href="shop.html?cat=books" class="sidebar-item"><span class="sidebar-item-icon">📚</span> Books</a>
+        <a href="shop.html?cat=toys" class="sidebar-item"><span class="sidebar-item-icon">🧸</span> Toys</a>
+        <a href="shop.html?cat=food" class="sidebar-item"><span class="sidebar-item-icon">🍎</span> Food</a>
+        <a href="shop.html?flash=true" class="sidebar-item" style="color:#f37021"><span class="sidebar-item-icon">⚡</span> Flash Deals</a>
+      </div>
+    </aside>
+
+    <!-- MAIN COL -->
+    <div>
+      <!-- HERO -->
+      <div class="hero-banner">
+        <div class="hero-bg-glow"></div>
+        <div class="hero-card-glow"></div>
+        <div class="hero-content">
+          <p class="hero-eyebrow" id="heroEye">Nigeria's #1 Online Store</p>
+          <h1 class="hero-title">
+            <span class="hero-tline"><span class="hero-tinner">Everything</span></span>
+            <span class="hero-tline"><span class="hero-tinner" style="color:#f37021">You Need.</span></span>
+            <span class="hero-tline"><span class="hero-tinner">One Place.</span></span>
+          </h1>
+          <p class="hero-desc" id="heroDesc">Premium products. Fast delivery. Secure payments via Paystack.</p>
+          <a href="shop.html" class="hero-btn" id="heroBtn">
+            Shop Now
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-val" id="heroCounter">0+</div><div class="hstat-label">Products</div></div>
+          <div class="hstat"><div class="hstat-val" style="color:#00c864">✓</div><div class="hstat-label">Paystack</div></div>
+          <div class="hstat"><div class="hstat-val">2–5</div><div class="hstat-label">Day Delivery</div></div>
+        </div>
+      </div>
+
+      <!-- PROMO CARDS -->
+      <div class="promo-grid reveal">
+        <a href="shop.html?cat=electronics" class="promo-card promo-electronics">
+          <div><div class="promo-text-label" style="color:#00d4ff">Top Picks</div><div class="promo-text-title">Electronics</div><div class="promo-text-sub">Phones, Laptops & more</div></div>
+          <div class="promo-emoji">📱</div>
+        </a>
+        <a href="shop.html?cat=fashion" class="promo-card promo-fashion">
+          <div><div class="promo-text-label" style="color:#f37021">Trending</div><div class="promo-text-title">Fashion</div><div class="promo-text-sub">Clothes, Shoes & Bags</div></div>
+          <div class="promo-emoji">👗</div>
+        </a>
+        <a href="shop.html?cat=home" class="promo-card promo-home">
+          <div><div class="promo-text-label" style="color:#00c864">New In</div><div class="promo-text-title">Home & Living</div><div class="promo-text-sub">Furniture & Decor</div></div>
+          <div class="promo-emoji">🏠</div>
+        </a>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- CATEGORIES -->
-<section class="section">
-  <div class="section-header">
-    <h2 class="section-title reveal-left">Shop by Category</h2>
-    <a href="shop.html" class="see-all reveal-right">See All →</a>
+  <!-- CATEGORIES -->
+  <div style="margin-top:20px">
+    <div class="sec-hd reveal">
+      <div class="sec-hd-l"><span class="sec-hd-icon">🛍️</span><h2 class="sec-hd-title">Shop by Category</h2></div>
+      <a href="shop.html" class="sec-hd-link">See all →</a>
+    </div>
+    <div class="cat-grid">
+      <a href="shop.html?cat=electronics" class="cat-card reveal d1"><div class="cat-card-icon">📱</div><div class="cat-card-name">Electronics</div></a>
+      <a href="shop.html?cat=fashion" class="cat-card reveal d2"><div class="cat-card-icon">👗</div><div class="cat-card-name">Fashion</div></a>
+      <a href="shop.html?cat=home" class="cat-card reveal d3"><div class="cat-card-icon">🏠</div><div class="cat-card-name">Home</div></a>
+      <a href="shop.html?cat=beauty" class="cat-card reveal d4"><div class="cat-card-icon">💄</div><div class="cat-card-name">Beauty</div></a>
+      <a href="shop.html?cat=sports" class="cat-card reveal d5"><div class="cat-card-icon">⚽</div><div class="cat-card-name">Sports</div></a>
+      <a href="shop.html?cat=books" class="cat-card reveal d6"><div class="cat-card-icon">📚</div><div class="cat-card-name">Books</div></a>
+      <a href="shop.html?cat=toys" class="cat-card reveal d7"><div class="cat-card-icon">🧸</div><div class="cat-card-name">Toys</div></a>
+      <a href="shop.html?cat=food" class="cat-card reveal d8"><div class="cat-card-icon">🍎</div><div class="cat-card-name">Food</div></a>
+    </div>
   </div>
-  <div class="categories-grid">
-    <a href="shop.html?cat=electronics" class="cat-card reveal d1"><div class="cat-icon">📱</div><span>Electronics</span></a>
-    <a href="shop.html?cat=fashion" class="cat-card reveal d2"><div class="cat-icon">👗</div><span>Fashion</span></a>
-    <a href="shop.html?cat=home" class="cat-card reveal d3"><div class="cat-icon">🏠</div><span>Home & Living</span></a>
-    <a href="shop.html?cat=beauty" class="cat-card reveal d4"><div class="cat-icon">💄</div><span>Beauty</span></a>
-    <a href="shop.html?cat=sports" class="cat-card reveal d5"><div class="cat-icon">⚽</div><span>Sports</span></a>
-    <a href="shop.html?cat=books" class="cat-card reveal d6"><div class="cat-icon">📚</div><span>Books</span></a>
-    <a href="shop.html?cat=toys" class="cat-card reveal d7"><div class="cat-icon">🧸</div><span>Toys</span></a>
-    <a href="shop.html?cat=food" class="cat-card reveal d8"><div class="cat-icon">🍎</div><span>Food</span></a>
-  </div>
-</section>
 
-<!-- FEATURED PRODUCTS -->
-<section class="section">
-  <div class="section-header">
-    <h2 class="section-title reveal-left">Featured Products</h2>
-    <a href="shop.html" class="see-all reveal-right">View All →</a>
+  <!-- FEATURED -->
+  <div style="margin-top:20px">
+    <div class="sec-hd reveal">
+      <div class="sec-hd-l"><span class="sec-hd-icon">⭐</span><h2 class="sec-hd-title">Featured Products</h2><span class="sec-hd-badge">Hot</span></div>
+      <a href="shop.html" class="sec-hd-link">View all →</a>
+    </div>
+    <div class="prod-grid" id="featuredProducts"></div>
   </div>
-  <div class="products-grid" id="featuredProducts"></div>
-</section>
 
-<!-- DEALS BANNER -->
-<section class="deals-banner reveal">
-  <div class="deals-content">
-    <p class="deals-sub">ALWAYS ON</p>
-    <h2>Best Sellers 🔥</h2>
-    <p>Top-rated products loved by thousands of customers.</p>
-    <a href="shop.html" class="hero-cta">Shop Now</a>
+  <!-- NEW ARRIVALS -->
+  <div style="margin-top:20px">
+    <div class="sec-hd reveal">
+      <div class="sec-hd-l"><span class="sec-hd-icon">🆕</span><h2 class="sec-hd-title">New Arrivals</h2><span class="sec-hd-badge" style="background:#0071e3">New</span></div>
+      <a href="shop.html?sort=newest" class="sec-hd-link">See more →</a>
+    </div>
+    <div class="prod-grid" id="newArrivals"></div>
   </div>
-  <div class="deals-visual">
-    <div class="deals-circle c1"></div>
-    <div class="deals-circle c2"></div>
-    <div class="deals-circle c3"></div>
-  </div>
-</section>
 
-<!-- NEW ARRIVALS -->
-<section class="section">
-  <div class="section-header">
-    <h2 class="section-title reveal-left">New Arrivals</h2>
-    <a href="shop.html?sort=newest" class="see-all reveal-right">See More →</a>
+  <!-- WHY -->
+  <div class="why-strip reveal">
+    <div class="why-item"><div class="why-icon">🚚</div><div><div class="why-title">Fast Delivery</div><div class="why-sub">2–5 days nationwide</div></div></div>
+    <div class="why-item"><div class="why-icon">🔒</div><div><div class="why-title">Secure Payments</div><div class="why-sub">Powered by Paystack</div></div></div>
+    <div class="why-item"><div class="why-icon">✅</div><div><div class="why-title">Verified Products</div><div class="why-sub">Quality checked</div></div></div>
+    <div class="why-item"><div class="why-icon">↩️</div><div><div class="why-title">Easy Returns</div><div class="why-sub">7-day return policy</div></div></div>
   </div>
-  <div class="products-grid" id="newArrivals"></div>
-</section>
 
-<!-- WHY -->
-<section class="why-section">
-  <div class="why-grid">
-    <div class="why-card reveal d1"><div class="why-icon">🚚</div><h3>Fast Delivery</h3><p>Quick delivery across Nigeria right to your door.</p></div>
-    <div class="why-card reveal d2"><div class="why-icon">🔒</div><h3>Secure Payments</h3><p>All transactions secured by Paystack — Nigeria's most trusted gateway.</p></div>
-    <div class="why-card reveal d3"><div class="why-icon">✅</div><h3>Verified Products</h3><p>Every product is quality-checked before listing.</p></div>
-    <div class="why-card reveal d4"><div class="why-icon">↩️</div><h3>Easy Returns</h3><p>Not satisfied? Return within 7 days. No questions asked.</p></div>
-  </div>
-</section>
+</div><!-- /pw -->
 
 <!-- FOOTER -->
 <footer class="footer">
-  <div class="footer-top">
-    <div class="footer-brand">
-      <img src="assets/logo.png" alt="Tavikmart" class="footer-logo"/>
-      <p>Your one-stop marketplace for everything you need, delivered to your door across Nigeria.</p>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <img src="assets/logo.png" alt="Tavikmart" class="footer-logo"/>
+        <p class="footer-desc">Your one-stop marketplace for everything you need, delivered across Nigeria.</p>
+      </div>
+      <div class="footer-col"><h4>Shop</h4><a href="shop.html">All Products</a><a href="shop.html?cat=electronics">Electronics</a><a href="shop.html?cat=fashion">Fashion</a><a href="shop.html?flash=true">Flash Deals ⚡</a></div>
+      <div class="footer-col"><h4>Account</h4><a href="auth.html">Login / Register</a><a href="account.html">My Account</a><a href="cart.html">My Cart</a><a href="account.html">Track Order</a></div>
+      <div class="footer-col"><h4>Info</h4><a href="about.html">About Us</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></div>
     </div>
-    <div class="footer-links">
-      <h4>Shop</h4>
-      <a href="shop.html">All Products</a>
-      <a href="shop.html?cat=electronics">Electronics</a>
-      <a href="shop.html?cat=fashion">Fashion</a>
-      <a href="shop.html?flash=true">Flash Deals ⚡</a>
-    </div>
-    <div class="footer-links">
-      <h4>Account</h4>
-      <a href="auth.html">Login / Register</a>
-      <a href="account.html">My Account</a>
-      <a href="cart.html">My Cart</a>
-    </div>
-    <div class="footer-links">
-      <h4>Info</h4>
-      <a href="about.html">About Us</a>
-      <a href="contact.html">Contact Us</a>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="terms.html">Terms of Service</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>. All rights reserved.</p>
+    <div class="footer-bottom-bar"><p>© 2025 Tavikmart. Built by <span style="color:#f37021">DEVGODSWILL</span>. All rights reserved.</p></div>
   </div>
 </footer>
 
 <script src="js/firebase-config.js"></script>
 <script src="js/cart.js"></script>
 <script>
-  // ===== LOADER — simple GSAP, no heavy plugins =====
-  const loaderTl = gsap.timeline({
+  // ===== LOADER =====
+  gsap.timeline({
     onComplete: () => {
       gsap.to('#pageLoader', {
         opacity: 0, duration: 0.4,
-        onComplete: () => {
-          document.getElementById('pageLoader').style.display = 'none';
-          startPage();
-        }
+        onComplete: () => { document.getElementById('pageLoader').style.display = 'none'; launch(); }
       });
     }
-  });
+  })
+  .to('#ldLogo', { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+  .to('#ldTag', { opacity: 1, duration: 0.3 }, '-=0.2')
+  .to('#ldFill', { width: '100%', duration: 0.8, ease: 'power1.inOut' }, '-=0.2')
+  .to({}, { duration: 0.2 });
 
-  loaderTl
-    .to('#loaderBrand', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
-    .to('#loaderFill', { width: '100%', duration: 0.9, ease: 'power1.inOut' }, '-=0.2')
-    .to({}, { duration: 0.2 });
-
-  // ===== START PAGE =====
-  function startPage() {
-    // Navbar
-    document.querySelector('.navbar').classList.add('loaded');
-
-    // Hero sub
-    gsap.to('.hero-sub', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 });
-
-    // Hero title — line by line
-    gsap.to('.hero-title-inner', {
-      y: '0%', stagger: 0.15, duration: 0.9,
-      ease: 'power4.out', delay: 0.25
-    });
-
-    // Hero desc + cta
-    gsap.to('.hero-desc', { opacity: 1, y: 0, duration: 0.5, delay: 0.8, ease: 'power2.out' });
-    gsap.to('.hero-cta', { opacity: 1, y: 0, duration: 0.5, delay: 1.0, ease: 'back.out(1.5)' });
-
-    // Hero card
-    gsap.to('.hero-visual', { opacity: 1, x: 0, duration: 0.8, delay: 0.5, ease: 'power3.out' });
-
-    // Counter
+  // ===== LAUNCH =====
+  function launch() {
+    document.getElementById('navbar').classList.add('loaded');
+    gsap.to('#heroEye', { opacity: 1, y: 0, duration: 0.5, delay: 0.1 });
+    gsap.to('.hero-tinner', { y: '0%', stagger: 0.15, duration: 0.85, delay: 0.25, ease: 'power4.out' });
+    gsap.to('#heroDesc', { opacity: 1, y: 0, duration: 0.5, delay: 0.8 });
+    gsap.to('#heroBtn', { opacity: 1, y: 0, duration: 0.5, delay: 1.0, ease: 'back.out(1.5)' });
     gsap.to({ v: 0 }, {
-      v: 10000, delay: 0.8, duration: 1.8, ease: 'power2.out',
+      v: 10000, delay: 0.6, duration: 1.8, ease: 'power2.out',
       onUpdate: function() {
         const el = document.getElementById('heroCounter');
         if (el) el.textContent = Math.round(this.targets()[0].v).toLocaleString() + '+';
       }
     });
-
-    // Marquee
-    gsap.to('.marquee-wrap', { opacity: 1, duration: 0.4, delay: 1.2 });
   }
 
-  // ===== INTERSECTION OBSERVER — lightweight scroll reveals =====
-  // Way lighter than ScrollTrigger for simple fade-ins
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target); // stop watching after reveal
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  // ===== INTERSECTION OBSERVER =====
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
-    revealObserver.observe(el);
-  });
-
-  // Observe product cards after they load
-  function observeCards(gridId) {
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
-    const obs = new MutationObserver(() => {
-      const cards = grid.querySelectorAll('.product-card');
+  function watchGrid(id) {
+    const g = document.getElementById(id);
+    if (!g) return;
+    new MutationObserver((_, obs) => {
+      const cards = g.querySelectorAll('.prod-card');
       if (!cards.length) return;
       obs.disconnect();
-      cards.forEach((card, i) => {
-        card.style.transitionDelay = (i * 0.06) + 's';
-        card.classList.add('reveal');
-        revealObserver.observe(card);
-      });
-    });
-    obs.observe(grid, { childList: true });
+      cards.forEach((c, i) => { c.style.transitionDelay = (i * 0.05) + 's'; c.classList.add('reveal'); io.observe(c); });
+    }).observe(g, { childList: true });
   }
-  observeCards('featuredProducts');
-  observeCards('newArrivals');
+  watchGrid('featuredProducts');
+  watchGrid('newArrivals');
 
-  // ===== SCROLL PROGRESS — passive listener =====
-  window.addEventListener('scroll', () => {
-    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
-    document.getElementById('scrollBar').style.width = pct + '%';
-  }, { passive: true });
-
-  // ===== NAVBAR HIDE/SHOW =====
+  // ===== SCROLL =====
   let prevY = 0;
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
-    const nav = document.querySelector('.navbar');
-    if (y > 80 && y > prevY) {
-      nav.style.transform = 'translateY(-76px)';
-    } else {
-      nav.style.transform = 'translateY(0)';
-    }
+    document.getElementById('scrollBar').style.width = (y / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
+    const nav = document.getElementById('navbar');
     nav.style.transition = 'transform 0.3s ease';
+    nav.style.transform = y > 80 && y > prevY ? 'translateY(-100%)' : 'translateY(0)';
     prevY = y;
   }, { passive: true });
+
+  // ===== PRODUCT CARD RENDERER =====
+  function renderProdCard(p) {
+    const isFlash = p.flashSale && p.flashPrice;
+    const price = isFlash ? p.flashPrice : p.price;
+    const oldPrice = isFlash ? p.price : p.oldPrice;
+    const disc = oldPrice ? Math.round((1 - price / oldPrice) * 100) : null;
+    const inWl = Wishlist.has(p.id);
+    const sName = p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    const sImg = (p.image||'').replace(/'/g,"\\'");
+    const sCat = (p.category||'').replace(/'/g,"\\'");
+    return `
+      <div class="prod-card" onclick="window.location='product.html?id=${p.id}'">
+        <div class="prod-img-wrap">
+          <img src="assets/placeholder.svg" data-src="${p.image||'assets/placeholder.svg'}" alt="${p.name}" class="img-loading" onerror="this.src='assets/placeholder.svg'"/>
+          ${isFlash ? `<span class="prod-badge pb-flash">⚡ SALE</span>` : disc ? `<span class="prod-badge pb-deal">-${disc}%</span>` : p.isNew ? `<span class="prod-badge pb-new">NEW</span>` : ''}
+          <button class="prod-wl-btn ${inWl?'active':''}" onclick="event.stopPropagation();Wishlist.toggle({id:'${p.id}',name:'${sName}',price:${p.price},image:'${sImg}',category:'${sCat}'},this)">${inWl?'❤️':'🤍'}</button>
+        </div>
+        <div class="prod-info">
+          <p class="prod-cat">${p.category||'General'}</p>
+          <p class="prod-name">${p.name}</p>
+          <div class="prod-price-row">
+            <div>
+              <span class="prod-price">${formatPrice(price)}</span>
+              ${oldPrice?`<span class="prod-old-price">${formatPrice(oldPrice)}</span>`:''}
+              ${disc?`<span class="prod-disc">-${disc}%</span>`:''}
+            </div>
+            <button class="prod-add-btn" onclick="event.stopPropagation();Cart.add({id:'${p.id}',name:'${sName}',price:${price},image:'${sImg}',category:'${sCat}'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // Override renderSkeletons for new card style
+  function renderSkeletons(n=8) {
+    return Array(n).fill(`<div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text-sm"></div><div class="skeleton skeleton-price"></div></div>`).join('');
+  }
 
   // ===== FIREBASE =====
   document.getElementById('featuredProducts').innerHTML = renderSkeletons(8);
@@ -526,7 +594,7 @@
   function startCountdown(end) {
     function tick() {
       const d = end - new Date();
-      if (d <= 0) { document.getElementById('flashSaleBanner').style.display = 'none'; return; }
+      if (d <= 0) { document.getElementById('flashSaleBanner').style.display='none'; return; }
       document.getElementById('cdHours').textContent = String(Math.floor(d/3600000)).padStart(2,'0');
       document.getElementById('cdMins').textContent = String(Math.floor((d%3600000)/60000)).padStart(2,'0');
       document.getElementById('cdSecs').textContent = String(Math.floor((d%60000)/1000)).padStart(2,'0');
@@ -537,13 +605,13 @@
   async function loadFeaturedProducts() {
     const c = document.getElementById('featuredProducts');
     const cached = Cache.get('featured');
-    if (cached) { c.innerHTML = cached.map(p => renderProductCard(p)).join(''); observeImages(c); return; }
+    if (cached) { c.innerHTML = cached.map(p => renderProdCard(p)).join(''); observeImages(c); return; }
     try {
       const snap = await db.collection('products').where('featured','==',true).limit(8).get();
       if (snap.empty) { c.innerHTML=`<div class="empty-state"><h3>No featured products yet</h3></div>`; return; }
       const products = snap.docs.map(d => ({id:d.id,...d.data()}));
       Cache.set('featured', products);
-      c.innerHTML = products.map(p => renderProductCard(p)).join('');
+      c.innerHTML = products.map(p => renderProdCard(p)).join('');
       observeImages(c);
     } catch(e) { c.innerHTML=`<div class="empty-state"><h3>Couldn't load products</h3></div>`; }
   }
@@ -551,13 +619,13 @@
   async function loadNewArrivals() {
     const c = document.getElementById('newArrivals');
     const cached = Cache.get('arrivals');
-    if (cached) { c.innerHTML = cached.map(p => renderProductCard({...p,isNew:true})).join(''); observeImages(c); return; }
+    if (cached) { c.innerHTML = cached.map(p => renderProdCard({...p,isNew:true})).join(''); observeImages(c); return; }
     try {
       const snap = await db.collection('products').orderBy('createdAt','desc').limit(8).get();
       if (snap.empty) { c.innerHTML=`<div class="empty-state"><h3>No products yet</h3></div>`; return; }
       const products = snap.docs.map(d => ({id:d.id,...d.data()}));
       Cache.set('arrivals', products);
-      c.innerHTML = products.map(p => renderProductCard({...p,isNew:true})).join('');
+      c.innerHTML = products.map(p => renderProdCard({...p,isNew:true})).join('');
       observeImages(c);
     } catch(e) { c.innerHTML=`<div class="empty-state"><h3>Couldn't load products</h3></div>`; }
   }
