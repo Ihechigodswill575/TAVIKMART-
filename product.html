@@ -10,80 +10,203 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
-    .product-detail{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding:60px 80px;max-width:1200px;margin:0 auto}
-    .product-gallery{position:sticky;top:100px;height:fit-content}
-    .main-image{width:100%;aspect-ratio:1;background:var(--bg3);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-    .main-image img{width:100%;height:100%;object-fit:cover;transition:opacity .3s}
-    .thumb-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-    .thumb{width:68px;height:68px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color var(--transition);flex-shrink:0}
-    .thumb:hover,.thumb.active{border-color:var(--accent)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+
+    /* NAVBAR */
+    .navbar{background:#111;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:0;z-index:1000}
+    .nav-inner{max-width:1380px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+    .logo-img{height:36px;width:auto;object-fit:contain}
+    .search-wrap{flex:1;display:flex;border-radius:4px;overflow:hidden;border:2px solid #f37021;max-width:600px}
+    .search-field{flex:1;background:#1e1e1e;border:none;outline:none;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px}
+    .search-field::placeholder{color:#666}
+    .search-go{background:#f37021;border:none;color:#fff;padding:0 14px;cursor:pointer;display:flex;align-items:center;transition:background .2s}
+    .search-go:hover{background:#e06010}
+    .nav-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
+    .nav-icon-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 10px;border-radius:4px;color:#a0a0a0;font-size:10px;cursor:pointer;transition:all .2s;position:relative;white-space:nowrap}
+    .nav-icon-btn:hover{background:#1a1a1a;color:#f0f0f0}
+    .nav-cart-badge{position:absolute;top:2px;right:5px;background:#f37021;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+    /* BREADCRUMB */
+    .breadcrumb{max-width:1380px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
+    .breadcrumb a{color:#a0a0a0;transition:color .2s}
+    .breadcrumb a:hover{color:#f37021}
+    .breadcrumb span{color:#666}
+
+    /* PRODUCT DETAIL */
+    .pw{max-width:1380px;margin:0 auto;padding:0 16px 40px}
+    .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:28px;margin-bottom:24px}
+
+    /* Gallery */
+    .gallery-wrap{position:sticky;top:80px;height:fit-content}
+    .main-img-wrap{width:100%;aspect-ratio:1;background:#1e1e1e;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);margin-bottom:10px;cursor:zoom-in}
+    .main-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+    .main-img-wrap:hover img{transform:scale(1.06)}
+    .thumb-row{display:flex;gap:8px;flex-wrap:wrap}
+    .thumb{width:64px;height:64px;background:#1e1e1e;border:1px solid rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .2s;flex-shrink:0}
+    .thumb:hover,.thumb.active{border-color:#f37021}
     .thumb img{width:100%;height:100%;object-fit:cover}
-    .product-detail-info{padding-top:10px}
-    .detail-category{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
-    .detail-name{font-family:var(--font-display);font-size:42px;line-height:1;letter-spacing:1px;margin-bottom:18px}
-    .detail-price-row{display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap}
-    .detail-price{font-size:30px;font-weight:700}
-    .detail-old-price{font-size:18px;color:var(--text2);text-decoration:line-through}
-    .detail-discount{background:var(--red);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px}
-    .detail-flash{background:var(--orange);color:#000;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px}
-    .detail-desc{font-size:15px;color:var(--text2);line-height:1.8;margin-bottom:28px}
-    .qty-row{display:flex;align-items:center;gap:16px;margin-bottom:22px}
-    .qty-row label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text2)}
-    .qty-control{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
-    .qty-control button{background:none;border:none;color:var(--text);font-size:18px;width:40px;height:40px;cursor:pointer;transition:background var(--transition)}
-    .qty-control button:hover{background:var(--bg4)}
-    .qty-control span{min-width:40px;text-align:center;font-size:15px;font-weight:600}
-    .detail-actions{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
-    .detail-actions .btn{flex:1;min-width:140px;padding:14px}
-    .detail-meta{border-top:1px solid var(--border);padding-top:20px;display:flex;flex-direction:column;gap:8px}
-    .meta-row{display:flex;gap:12px;font-size:13px}
-    .meta-row span:first-child{color:var(--text2);min-width:100px}
-    .related-section{padding:60px 80px;border-top:1px solid var(--border)}
-    @media(max-width:900px){.product-detail{grid-template-columns:1fr;padding:28px 20px;gap:28px}.product-gallery{position:static}.detail-name{font-size:34px}.related-section{padding:40px 20px}}
+
+    /* Product info */
+    .prod-detail{}
+    .prod-detail-cat{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f37021;margin-bottom:8px}
+    .prod-detail-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,44px);line-height:1;letter-spacing:1px;margin-bottom:14px}
+    .prod-detail-price-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+    .prod-detail-price{font-size:28px;font-weight:700;color:#f37021}
+    .prod-detail-old{font-size:16px;color:#666;text-decoration:line-through}
+    .prod-detail-disc{background:rgba(0,200,100,.12);color:#00c864;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+    .prod-detail-flash{background:rgba(243,112,33,.15);color:#f37021;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+    .prod-detail-desc{font-size:14px;color:#a0a0a0;line-height:1.8;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.06)}
+
+    /* Qty + actions */
+    .qty-section{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .qty-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#a0a0a0}
+    .qty-ctrl{display:flex;align-items:center;background:#1e1e1e;border:1px solid rgba(255,255,255,0.07);border-radius:4px;overflow:hidden}
+    .qty-btn{background:none;border:none;color:#f0f0f0;font-size:18px;width:38px;height:38px;cursor:pointer;transition:background .2s}
+    .qty-btn:hover{background:#2a2a2a}
+    .qty-num{min-width:38px;text-align:center;font-size:15px;font-weight:600}
+    .action-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .btn-add-cart{flex:1;min-width:140px;padding:13px;background:#f37021;color:#fff;border:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-add-cart:hover{background:#e06010;transform:translateY(-1px);box-shadow:0 6px 16px rgba(243,112,33,.3)}
+    .btn-buy-now{flex:1;min-width:140px;padding:13px;background:transparent;color:#f0f0f0;border:1px solid rgba(255,255,255,0.15);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-buy-now:hover{border-color:#f37021;color:#f37021}
+    .btn-wishlist{padding:13px 16px;background:transparent;color:#a0a0a0;border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:20px;cursor:pointer;transition:all .25s}
+    .btn-wishlist:hover,.btn-wishlist.active{border-color:#ff4d6d;color:#ff4d6d;background:rgba(255,77,109,.08)}
+
+    /* Meta info */
+    .prod-meta{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid rgba(255,255,255,0.06)}
+    .prod-meta-row{display:flex;gap:10px;font-size:13px}
+    .prod-meta-label{color:#a0a0a0;min-width:100px;flex-shrink:0}
+    .prod-meta-val{color:#f0f0f0;font-weight:500}
+
+    /* Delivery info strip */
+    .delivery-strip{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;margin-top:16px}
+    .delivery-item{display:flex;align-items:center;gap:10px;font-size:12px;color:#a0a0a0}
+    .delivery-item-icon{font-size:18px;flex-shrink:0}
+
+    /* RELATED */
+    .related-section{margin-top:8px}
+    .sec-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 0 10px;border-bottom:2px solid #f37021;margin-bottom:12px}
+    .sec-hd-l{display:flex;align-items:center;gap:8px}
+    .sec-hd-icon{font-size:17px}
+    .sec-hd-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.5px}
+    .sec-hd-link{font-size:11px;font-weight:600;color:#f37021}
+    .sec-hd-link:hover{opacity:.7}
+    .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+    .prod-card{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+    .prod-card:hover{transform:translateY(-4px);border-color:rgba(243,112,33,.3);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+    .prod-img-wrap{width:100%;aspect-ratio:1;background:#1e1e1e;overflow:hidden;position:relative}
+    .prod-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+    .prod-card:hover .prod-img-wrap img{transform:scale(1.06)}
+    .prod-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;z-index:1}
+    .pb-deal{background:#e03131;color:#fff}
+    .pb-flash{background:#f37021;color:#fff}
+    .prod-wl-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);border:none;color:#a0a0a0;width:26px;height:26px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:2;transition:all .2s}
+    .prod-wl-btn:hover,.prod-wl-btn.active{color:#ff4d6d;background:rgba(255,77,109,.15)}
+    .prod-info{padding:10px}
+    .prod-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f37021;margin-bottom:2px}
+    .prod-name{font-size:12px;font-weight:500;color:#f0f0f0;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .prod-price-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+    .prod-price{font-size:14px;font-weight:700;color:#f37021}
+    .prod-old-price{font-size:10px;color:#666;text-decoration:line-through}
+    .prod-add-btn{background:#f37021;color:#fff;border:none;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+    .prod-add-btn:hover{background:#e06010;transform:scale(1.1)}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,#181818 25%,#222 50%,#181818 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .loading-spinner{display:flex;flex-direction:column;align-items:center;gap:12px;padding:80px;color:#a0a0a0;justify-content:center}
+    .spinner{width:26px;height:26px;border:3px solid rgba(255,255,255,.07);border-top-color:#f37021;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{position:fixed;bottom:22px;right:22px;background:#1e1e1e;border:1px solid rgba(255,255,255,.07);border-left:3px solid #f37021;padding:10px 14px;border-radius:5px;font-size:12px;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s;max-width:240px;pointer-events:none}
+    .toast.show{transform:translateY(0);opacity:1}
+    .footer{background:#111;border-top:1px solid rgba(255,255,255,.06);margin-top:36px;padding:18px 0}
+    .footer-bottom{max-width:1380px;margin:0 auto;padding:0 16px;text-align:center;font-size:11px;color:#666}
+    @media(max-width:900px){.product-layout{grid-template-columns:1fr;padding:18px}.gallery-wrap{position:static}}
+    @media(max-width:600px){.nav-inner{flex-wrap:wrap;gap:8px}.search-wrap{order:3;flex:1 1 100%}.action-btns{flex-direction:column}.btn-add-cart,.btn-buy-now{min-width:unset}}
   </style>
 </head>
 <body>
+
 <header class="navbar">
-  <div class="nav-top">
-    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
-    <div class="search-bar"><input type="text" placeholder="Search products..." id="searchInput"/><button class="search-btn" onclick="handleSearch()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button></div>
-    <div class="nav-actions">
-      <a href="auth.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Sign In</span></a>
-      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
-      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></a>
+  <div class="nav-inner">
+    <a href="index.html"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <div class="search-wrap">
+      <input type="text" class="search-field" placeholder="Search products..." id="searchInput"/>
+      <button class="search-go" onclick="handleSearch()">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </div>
+    <div class="nav-right">
+      <a href="auth.html" class="nav-icon-btn" id="authBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span id="authLabel">Sign In</span>
+      </a>
+      <a href="cart.html" class="nav-icon-btn" style="position:relative">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart</span>
+        <div class="nav-cart-badge" id="cartCount">0</div>
+      </a>
+      <a href="dashboard.html" class="nav-icon-btn" id="adminBtn" style="display:none">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
     </div>
   </div>
 </header>
 
-<!-- Skeleton shown instantly -->
-<div id="productDetailWrap">
-  <div class="product-detail">
-    <div class="product-gallery"><div class="skeleton" style="width:100%;aspect-ratio:1;border-radius:20px"></div></div>
-    <div style="padding-top:10px">
-      <div class="skeleton" style="height:12px;width:30%;margin-bottom:16px"></div>
-      <div class="skeleton" style="height:48px;width:80%;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:48px;width:60%;margin-bottom:24px"></div>
-      <div class="skeleton" style="height:32px;width:40%;margin-bottom:20px"></div>
-      <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
-      <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
-      <div class="skeleton" style="height:14px;width:70%;margin-bottom:32px"></div>
+<!-- BREADCRUMB -->
+<div class="breadcrumb" id="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>›</span>
+  <a href="shop.html">Shop</a>
+  <span>›</span>
+  <span id="breadcrumbCat">Product</span>
+  <span>›</span>
+  <span id="breadcrumbName" style="color:#f0f0f0">Loading...</span>
+</div>
+
+<div class="pw">
+  <!-- PRODUCT DETAIL -->
+  <div id="productWrap">
+    <div class="product-layout">
+      <div class="gallery-wrap">
+        <div class="skeleton" style="width:100%;aspect-ratio:1;border-radius:8px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <div class="skeleton" style="width:64px;height:64px;border-radius:6px"></div>
+          <div class="skeleton" style="width:64px;height:64px;border-radius:6px"></div>
+          <div class="skeleton" style="width:64px;height:64px;border-radius:6px"></div>
+        </div>
+      </div>
+      <div>
+        <div class="skeleton" style="height:12px;width:30%;margin-bottom:14px"></div>
+        <div class="skeleton" style="height:44px;width:85%;margin-bottom:10px"></div>
+        <div class="skeleton" style="height:32px;width:40%;margin-bottom:20px"></div>
+        <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
+        <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
+        <div class="skeleton" style="height:14px;width:70%;margin-bottom:28px"></div>
+        <div style="display:flex;gap:10px">
+          <div class="skeleton" style="flex:1;height:46px;border-radius:4px"></div>
+          <div class="skeleton" style="flex:1;height:46px;border-radius:4px"></div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- RELATED -->
+  <div class="related-section" id="relatedSection" style="display:none">
+    <div class="sec-hd">
+      <div class="sec-hd-l"><span class="sec-hd-icon">🔗</span><h2 class="sec-hd-title">Related Products</h2></div>
+      <a href="shop.html" class="sec-hd-link">See more →</a>
+    </div>
+    <div class="prod-grid" id="relatedProducts"></div>
   </div>
 </div>
 
-<section class="related-section" id="relatedSection" style="display:none">
-  <div class="section-header"><h2 class="section-title">Related Products</h2></div>
-  <div class="products-grid" id="relatedProducts"></div>
-</section>
-
-<footer class="footer" style="margin-top:40px">
-  <div class="footer-top">
-    <div class="footer-brand"><img src="assets/logo.png" alt="Tavikmart" class="footer-logo"/><p>Your one-stop marketplace delivered across Nigeria.</p></div>
-    <div class="footer-links"><h4>Shop</h4><a href="shop.html">All Products</a></div>
-    <div class="footer-links"><h4>Account</h4><a href="account.html">My Account</a><a href="cart.html">Cart</a></div>
-    <div class="footer-links"><h4>Info</h4><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
-  </div>
-  <div class="footer-bottom"><p>© 2025 Tavikmart. Built by <span class="accent">DEVGODSWILL</span>.</p></div>
+<footer class="footer">
+  <div class="footer-bottom">© 2025 Tavikmart. Built by <span style="color:#f37021">DEVGODSWILL</span>. All rights reserved.</div>
 </footer>
 
 <script src="js/firebase-config.js"></script>
@@ -91,63 +214,88 @@
 <script>
   const params = new URLSearchParams(window.location.search);
   const productId = params.get('id');
-  let currentProduct = null, qty = 1;
+  let currentProduct = null;
+  let qty = 1;
+
+  if (!productId) window.location.href = 'shop.html';
 
   async function loadProduct() {
-    if (!productId) { window.location.href = 'shop.html'; return; }
     try {
       const doc = await db.collection('products').doc(productId).get();
-      if (!doc.exists) { window.location.href = 'shop.html'; return; }
+      if (!doc.exists) { window.location.href = '404.html'; return; }
       currentProduct = { id: doc.id, ...doc.data() };
       renderProduct(currentProduct);
       loadRelated(currentProduct.category, productId);
     } catch(err) {
-      document.getElementById('productDetailWrap').innerHTML = `<div class="empty-state" style="padding:80px"><h3>Error loading product</h3><p>${err.message}</p></div>`;
+      document.getElementById('productWrap').innerHTML = `<div class="loading-spinner"><h3 style="color:#ff6b6b">Error: ${err.message}</h3></div>`;
     }
   }
 
   function renderProduct(p) {
     document.title = `${p.name} — Tavikmart`;
+    document.getElementById('breadcrumbCat').textContent = p.category || 'Shop';
+    document.getElementById('breadcrumbName').textContent = p.name.length > 40 ? p.name.slice(0,40)+'…' : p.name;
     const isFlash = p.flashSale && p.flashPrice;
     const displayPrice = isFlash ? p.flashPrice : p.price;
-    const originalPrice = isFlash ? p.price : p.oldPrice;
-    const discount = originalPrice ? Math.round((1 - displayPrice / originalPrice) * 100) : null;
-    const images = p.images?.length ? p.images : (p.image ? [p.image] : []);
+    const origPrice = isFlash ? p.price : p.oldPrice;
+    const disc = origPrice ? Math.round((1 - displayPrice / origPrice) * 100) : null;
+    const images = p.images?.length ? p.images : (p.image ? [p.image] : ['assets/placeholder.svg']);
     const inWl = Wishlist.has(p.id);
 
-    document.getElementById('productDetailWrap').innerHTML = `
-      <div class="product-detail">
-        <div class="product-gallery">
-          <div class="main-image"><img src="${images[0] || 'assets/placeholder.svg'}" alt="${p.name}" id="mainImg" onerror="this.src='assets/placeholder.svg'"/></div>
-          ${images.length > 1 ? `<div class="thumb-row">${images.map((img,i) => `<div class="thumb ${i===0?'active':''}" onclick="switchImg('${img}',this)"><img src="${img}" onerror="this.src='assets/placeholder.svg'"/></div>`).join('')}</div>` : ''}
-        </div>
-        <div class="product-detail-info">
-          <p class="detail-category">${p.category || 'General'}</p>
-          <h1 class="detail-name">${p.name}</h1>
-          <div class="detail-price-row">
-            <span class="detail-price">${formatPrice(displayPrice)}</span>
-            ${originalPrice ? `<span class="detail-old-price">${formatPrice(originalPrice)}</span>` : ''}
-            ${isFlash ? `<span class="detail-flash">⚡ FLASH SALE</span>` : discount ? `<span class="detail-discount">-${discount}%</span>` : ''}
+    document.getElementById('productWrap').innerHTML = `
+      <div class="product-layout">
+        <div class="gallery-wrap">
+          <div class="main-img-wrap">
+            <img src="${images[0]}" alt="${p.name}" id="mainImg" onerror="this.src='assets/placeholder.svg'"/>
           </div>
-          <p class="detail-desc">${p.description || 'No description available.'}</p>
-          <div class="qty-row">
-            <label>Quantity</label>
-            <div class="qty-control">
-              <button onclick="changeQty(-1)">−</button>
-              <span id="qtyDisplay">1</span>
-              <button onclick="changeQty(1)">+</button>
+          ${images.length > 1 ? `<div class="thumb-row">${images.map((img,i)=>`
+            <div class="thumb ${i===0?'active':''}" onclick="switchImg('${img}',this)">
+              <img src="${img}" onerror="this.src='assets/placeholder.svg'"/>
+            </div>`).join('')}</div>` : ''}
+        </div>
+
+        <div class="prod-detail">
+          <p class="prod-detail-cat">${p.category||'General'}</p>
+          <h1 class="prod-detail-name">${p.name}</h1>
+          <div class="prod-detail-price-row">
+            <span class="prod-detail-price">${formatPrice(displayPrice)}</span>
+            ${origPrice?`<span class="prod-detail-old">${formatPrice(origPrice)}</span>`:''}
+            ${isFlash?`<span class="prod-detail-flash">⚡ Flash Sale</span>`:disc?`<span class="prod-detail-disc">-${disc}% OFF</span>`:''}
+          </div>
+          <p class="prod-detail-desc">${p.description||'No description available.'}</p>
+
+          <div class="qty-section">
+            <span class="qty-label">Qty:</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <span class="qty-num" id="qtyDisplay">1</span>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
             </div>
           </div>
-          <div class="detail-actions">
-            <button class="btn btn-primary" onclick="addToCartNow()">🛒 Add to Cart</button>
-            <button class="btn btn-outline" onclick="buyNow()">Buy Now →</button>
-            <button class="btn btn-outline ${inWl?'active':''}" onclick="toggleWl(this)" style="${inWl?'border-color:#ff4d6d;color:#ff4d6d':''}">${inWl?'❤️ Saved':'🤍 Wishlist'}</button>
+
+          <div class="action-btns">
+            <button class="btn-add-cart" onclick="addToCartNow()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Add to Cart
+            </button>
+            <button class="btn-buy-now" onclick="buyNow()">
+              Buy Now →
+            </button>
+            <button class="btn-wishlist ${inWl?'active':''}" onclick="toggleWl(this)" title="Wishlist">
+              ${inWl?'❤️':'🤍'}
+            </button>
           </div>
-          <div class="detail-meta">
-            <div class="meta-row"><span>Category</span><span>${p.category||'—'}</span></div>
-            <div class="meta-row"><span>Availability</span><span style="color:var(--green)">${p.inStock!==false?'✓ In Stock':'✗ Out of Stock'}</span></div>
-            ${p.brand?`<div class="meta-row"><span>Brand</span><span>${p.brand}</span></div>`:''}
-            ${isFlash?`<div class="meta-row"><span>Sale</span><span style="color:var(--orange)">⚡ Flash Sale Active</span></div>`:''}
+
+          <div class="prod-meta">
+            <div class="prod-meta-row"><span class="prod-meta-label">Category</span><span class="prod-meta-val">${p.category||'—'}</span></div>
+            <div class="prod-meta-row"><span class="prod-meta-label">Availability</span><span class="prod-meta-val" style="color:#00c864">${p.inStock!==false?'✓ In Stock':'✗ Out of Stock'}</span></div>
+            ${p.brand?`<div class="prod-meta-row"><span class="prod-meta-label">Brand</span><span class="prod-meta-val">${p.brand}</span></div>`:''}
+          </div>
+
+          <div class="delivery-strip">
+            <div class="delivery-item"><div class="delivery-item-icon">🚚</div><div><strong style="color:#f0f0f0">Fast Delivery</strong> — 2–5 business days across Nigeria</div></div>
+            <div class="delivery-item"><div class="delivery-item-icon">🔒</div><div><strong style="color:#f0f0f0">Secure Payment</strong> — Powered by Paystack</div></div>
+            <div class="delivery-item"><div class="delivery-item-icon">↩️</div><div><strong style="color:#f0f0f0">Easy Returns</strong> — 7-day return policy</div></div>
           </div>
         </div>
       </div>`;
@@ -159,8 +307,8 @@
     el.classList.add('active');
   }
 
-  function changeQty(delta) {
-    qty = Math.max(1, qty + delta);
+  function changeQty(d) {
+    qty = Math.max(1, qty + d);
     document.getElementById('qtyDisplay').textContent = qty;
   }
 
@@ -168,7 +316,7 @@
     if (!currentProduct) return;
     const price = currentProduct.flashSale && currentProduct.flashPrice ? currentProduct.flashPrice : currentProduct.price;
     for (let i = 0; i < qty; i++) {
-      Cart.add({ id: currentProduct.id, name: currentProduct.name, price, image: currentProduct.image || (currentProduct.images?.[0] || ''), category: currentProduct.category || '' });
+      Cart.add({ id: currentProduct.id, name: currentProduct.name, price, image: currentProduct.image||(currentProduct.images?.[0]||''), category: currentProduct.category||'' });
     }
   }
 
@@ -176,24 +324,59 @@
 
   function toggleWl(btn) {
     if (!currentProduct) return;
-    Wishlist.toggle({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image || '', category: currentProduct.category || '' }, null);
+    Wishlist.toggle({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image||'', category: currentProduct.category||'' }, null);
     const inWl = Wishlist.has(currentProduct.id);
-    btn.textContent = inWl ? '❤️ Saved' : '🤍 Wishlist';
-    btn.style.borderColor = inWl ? '#ff4d6d' : '';
-    btn.style.color = inWl ? '#ff4d6d' : '';
+    btn.textContent = inWl ? '❤️' : '🤍';
+    btn.classList.toggle('active', inWl);
+  }
+
+  function renderProdCard(p) {
+    const isFlash = p.flashSale && p.flashPrice;
+    const price = isFlash ? p.flashPrice : p.price;
+    const oldPrice = isFlash ? p.price : p.oldPrice;
+    const disc = oldPrice ? Math.round((1 - price / oldPrice) * 100) : null;
+    const inWl = Wishlist.has(p.id);
+    const sName = p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    const sImg = (p.image||'').replace(/'/g,"\\'");
+    const sCat = (p.category||'').replace(/'/g,"\\'");
+    return `
+      <div class="prod-card" onclick="window.location='product.html?id=${p.id}'">
+        <div class="prod-img-wrap">
+          <img src="assets/placeholder.svg" data-src="${p.image||'assets/placeholder.svg'}" alt="${p.name}" class="img-loading" onerror="this.src='assets/placeholder.svg'"/>
+          ${isFlash?`<span class="prod-badge pb-flash">⚡</span>`:disc?`<span class="prod-badge pb-deal">-${disc}%</span>`:''}
+          <button class="prod-wl-btn ${inWl?'active':''}" onclick="event.stopPropagation();Wishlist.toggle({id:'${p.id}',name:'${sName}',price:${p.price},image:'${sImg}',category:'${sCat}'},this)">${inWl?'❤️':'🤍'}</button>
+        </div>
+        <div class="prod-info">
+          <p class="prod-cat">${p.category||'General'}</p>
+          <p class="prod-name">${p.name}</p>
+          <div class="prod-price-row">
+            <div>
+              <span class="prod-price">${formatPrice(price)}</span>
+              ${oldPrice?`<span class="prod-old-price">${formatPrice(oldPrice)}</span>`:''}
+            </div>
+            <button class="prod-add-btn" onclick="event.stopPropagation();Cart.add({id:'${p.id}',name:'${sName}',price:${price},image:'${sImg}',category:'${sCat}'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
   }
 
   async function loadRelated(category, excludeId) {
-    const section = document.getElementById('relatedSection');
-    const container = document.getElementById('relatedProducts');
     try {
-      const snap = await db.collection('products').where('category', '==', category).limit(5).get();
-      const items = snap.docs.filter(d => d.id !== excludeId).slice(0, 4);
-      if (items.length === 0) return;
-      section.style.display = 'block';
-      container.innerHTML = items.map(d => renderProductCard({ id: d.id, ...d.data() })).join('');
-      observeImages(container);
-    } catch {}
+      const snap = await db.collection('products').where('category','==',category).limit(5).get();
+      const items = snap.docs.filter(d => d.id !== excludeId).slice(0,4);
+      if (!items.length) return;
+      document.getElementById('relatedSection').style.display = 'block';
+      const c = document.getElementById('relatedProducts');
+      c.innerHTML = items.map(d => renderProdCard({id:d.id,...d.data()})).join('');
+      observeImages(c);
+    } catch(e) {}
+  }
+
+  function handleSearch() {
+    const q = document.getElementById('searchInput')?.value.trim();
+    if (q) window.location.href = `shop.html?q=${encodeURIComponent(q)}`;
   }
 
   loadProduct();
