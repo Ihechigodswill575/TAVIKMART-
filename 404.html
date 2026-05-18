@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Not Found — Tavikmart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body{display:flex;flex-direction:column;min-height:100vh;background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif}
+    .navbar{background:#111;border-bottom:1px solid rgba(255,255,255,0.07);padding:12px 40px;display:flex;align-items:center;justify-content:space-between}
+    .logo-img{height:36px;object-fit:contain}
+    .nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;color:#a0a0a0;font-size:13px;font-weight:500;transition:all .2s;background:#1a1a1a;border:1px solid rgba(255,255,255,0.07)}
+    .nav-btn:hover{border-color:rgba(243,112,33,.4);color:#f0f0f0}
+    .error-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;position:relative;overflow:hidden}
+    .error-bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(243,112,33,0.06) 0%,transparent 70%);pointer-events:none}
+    .error-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(120px,20vw,220px);line-height:1;color:rgba(255,255,255,0.04);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;letter-spacing:10px}
+    .error-icon{font-size:72px;margin-bottom:20px;position:relative;z-index:1;opacity:0}
+    .error-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);letter-spacing:2px;margin-bottom:12px;position:relative;z-index:1;opacity:0}
+    .error-desc{font-size:16px;color:#a0a0a0;margin-bottom:32px;max-width:440px;line-height:1.7;position:relative;z-index:1;opacity:0}
+    .error-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;opacity:0}
+    .btn-primary{display:inline-flex;align-items:center;gap:8px;background:#f37021;color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:6px;transition:all .25s}
+    .btn-primary:hover{background:#e06010;transform:translateY(-2px);box-shadow:0 8px 20px rgba(243,112,33,.3)}
+    .btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:#f0f0f0;font-size:14px;font-weight:500;padding:12px 24px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);transition:all .25s}
+    .btn-outline:hover{border-color:rgba(243,112,33,.4);color:#f37021}
+    .search-404{display:flex;margin-top:32px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);max-width:400px;width:100%;position:relative;z-index:1;opacity:0}
+    .search-404 input{flex:1;background:#1a1a1a;border:none;outline:none;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 14px}
+    .search-404 input::placeholder{color:#666}
+    .search-404 button{background:#f37021;border:none;color:#fff;padding:0 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:background .2s}
+    .search-404 button:hover{background:#e06010}
+    .quick-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;position:relative;z-index:1;opacity:0}
+    .quick-link{background:#1a1a1a;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:6px 14px;font-size:12px;color:#a0a0a0;transition:all .2s}
+    .quick-link:hover{border-color:rgba(243,112,33,.3);color:#f37021}
+    .footer-bottom{text-align:center;font-size:11px;color:#666;padding:20px;border-top:1px solid rgba(255,255,255,.06);background:#111}
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <a href="index.html"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+    <a href="index.html" class="nav-btn">← Back to Home</a>
+  </header>
+
+  <div class="error-wrap">
+    <div class="error-bg"></div>
+    <div class="error-num">404</div>
+    <div class="error-icon" id="ei">🛒</div>
+    <h1 class="error-title" id="et">Page Not Found</h1>
+    <p class="error-desc" id="ed">Oops! Looks like this page went out of stock. Let's get you back to shopping.</p>
+    <div class="error-actions" id="ea">
+      <a href="index.html" class="btn-primary">🏠 Go Home</a>
+      <a href="shop.html" class="btn-outline">🛍️ Browse Products</a>
+    </div>
+    <div class="search-404" id="es">
+      <input type="text" id="s404" placeholder="Search for something..." onkeypress="if(event.key==='Enter')doSearch()"/>
+      <button onclick="doSearch()">Search</button>
+    </div>
+    <div class="quick-links" id="eq">
+      <a href="shop.html?cat=electronics" class="quick-link">📱 Electronics</a>
+      <a href="shop.html?cat=fashion" class="quick-link">👗 Fashion</a>
+      <a href="shop.html?cat=home" class="quick-link">🏠 Home</a>
+      <a href="shop.html?cat=beauty" class="quick-link">💄 Beauty</a>
+      <a href="cart.html" class="quick-link">🛒 My Cart</a>
+      <a href="account.html" class="quick-link">👤 My Account</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">© 2025 Tavikmart. Built by <span style="color:#f37021">DEVGODSWILL</span>.</div>
+
+  <script>
+    // Animations
+    gsap.to('#ei', { opacity:1, y:0, duration:.6, delay:.2, ease:'back.out(1.7)' });
+    gsap.to('#et', { opacity:1, y:0, duration:.6, delay:.4, ease:'power3.out' });
+    gsap.to('#ed', { opacity:1, y:0, duration:.5, delay:.55 });
+    gsap.to('#ea', { opacity:1, y:0, duration:.5, delay:.7 });
+    gsap.to('#es', { opacity:1, y:0, duration:.5, delay:.85 });
+    gsap.to('#eq', { opacity:1, y:0, duration:.5, delay:1.0 });
+
+    // Bounce cart icon
+    gsap.to('#ei', { y:-10, duration:1, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.2 });
+
+    function doSearch() {
+      const q = document.getElementById('s404').value.trim();
+      if (q) window.location.href = `shop.html?q=${encodeURIComponent(q)}`;
+    }
+  </script>
+</body>
+</html>
