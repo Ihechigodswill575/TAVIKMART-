@@ -4,224 +4,486 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Account — Tavikmart</title>
-  <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
-    .account-layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 120px)}
-    .account-sidebar{background:var(--bg2);border-right:1px solid var(--border)}
-    .profile-card{padding:28px 20px;border-bottom:1px solid var(--border);text-align:center}
-    .avatar-wrap{position:relative;display:inline-block;margin-bottom:14px}
-    .avatar{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);background:var(--bg4)}
-    .avatar-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg2);overflow:hidden}
-    .avatar-edit input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-    .profile-name{font-size:16px;font-weight:700;margin-bottom:3px}
-    .profile-email{font-size:12px;color:var(--text2)}
-    .profile-badge{display:inline-block;margin-top:8px;background:rgba(0,113,227,0.15);color:var(--accent2);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px}
-    .acc-nav{padding:12px}
-    .acc-nav a{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-sm);color:var(--text2);font-size:14px;font-weight:500;margin-bottom:2px;cursor:pointer;transition:all var(--transition)}
-    .acc-nav a:hover,.acc-nav a.active{background:var(--bg3);color:var(--text)}
-    .acc-nav a.active{border-left:2px solid var(--accent);color:var(--accent2)}
-    .acc-main{padding:36px;overflow-y:auto}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+
+    /* ===== NAVBAR ===== */
+    .navbar{background:#111;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:0;z-index:200}
+    .nav-inner{max-width:1380px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+    .logo-img{height:36px;width:auto;object-fit:contain}
+    .search-wrap{flex:1;display:flex;border-radius:4px;overflow:hidden;border:2px solid #f37021;max-width:560px}
+    .search-field{flex:1;background:#1e1e1e;border:none;outline:none;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px}
+    .search-field::placeholder{color:#666}
+    .search-go{background:#f37021;border:none;color:#fff;padding:0 14px;cursor:pointer;display:flex;align-items:center;transition:background .2s}
+    .search-go:hover{background:#e06010}
+    .nav-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
+    .nav-icon-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 10px;border-radius:4px;color:#a0a0a0;font-size:10px;cursor:pointer;transition:all .2s;position:relative;white-space:nowrap}
+    .nav-icon-btn:hover{background:#1a1a1a;color:#f0f0f0}
+    .nav-cart-badge{position:absolute;top:2px;right:5px;background:#f37021;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+    /* ===== TOGGLE SIDEBAR BTN ===== */
+    .sidebar-toggle-btn{background:none;border:none;color:#f0f0f0;cursor:pointer;padding:6px 8px;border-radius:4px;display:flex;flex-direction:column;gap:4px;transition:background .2s;flex-shrink:0}
+    .sidebar-toggle-btn:hover{background:#1a1a1a}
+    .toggle-bar{width:20px;height:2px;background:#f0f0f0;border-radius:2px;transition:all .3s ease;display:block}
+    /* Animate to X when open */
+    .sidebar-toggle-btn.open .toggle-bar:nth-child(1){transform:translateY(6px) rotate(45deg)}
+    .sidebar-toggle-btn.open .toggle-bar:nth-child(2){opacity:0;transform:scaleX(0)}
+    .sidebar-toggle-btn.open .toggle-bar:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+    /* ===== PAGE WRAP ===== */
+    .pw{max-width:1380px;margin:0 auto;padding:20px 16px 40px;position:relative}
+
+    /* ===== ACCOUNT LAYOUT ===== */
+    .acc-layout{display:flex;gap:20px;align-items:flex-start;position:relative}
+
+    /* ===== SIDEBAR OVERLAY (mobile) ===== */
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
+    .sidebar-overlay.show{opacity:1;pointer-events:all}
+
+    /* ===== SIDEBAR ===== */
+    .acc-sidebar{
+      width:240px;
+      flex-shrink:0;
+      position:sticky;
+      top:76px;
+      max-height:calc(100vh - 90px);
+      overflow-y:auto;
+      transition:all .3s ease;
+      /* Desktop collapsed state */
+    }
+    /* Desktop: when sidebar is hidden */
+    .acc-sidebar.hidden{
+      width:0;
+      overflow:hidden;
+      opacity:0;
+      pointer-events:none;
+      margin-right:-20px;
+    }
+
+    /* Mobile: sidebar becomes a fixed drawer */
+    @media(max-width:768px){
+      .acc-sidebar{
+        position:fixed;
+        top:0;bottom:0;left:0;
+        width:260px;
+        z-index:300;
+        background:#111;
+        padding:20px 0;
+        transform:translateX(-100%);
+        transition:transform .3s ease;
+        overflow-y:auto;
+        max-height:100vh;
+      }
+      .acc-sidebar.mobile-open{
+        transform:translateX(0);
+      }
+      .acc-sidebar.hidden{
+        width:260px;
+        opacity:1;
+        pointer-events:all;
+        overflow-y:auto;
+        margin-right:0;
+      }
+    }
+
+    .acc-sidebar::-webkit-scrollbar{width:3px}
+    .acc-sidebar::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+
+    .acc-profile-card{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:18px;text-align:center;margin-bottom:12px}
+    .acc-avatar-wrap{position:relative;display:inline-block;margin-bottom:10px}
+    .acc-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #f37021;background:#1e1e1e}
+    .acc-avatar-edit{position:absolute;bottom:2px;right:2px;width:22px;height:22px;background:#f37021;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #141414;overflow:hidden}
+    .acc-avatar-edit input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .acc-name{font-size:14px;font-weight:700;margin-bottom:2px}
+    .acc-email{font-size:11px;color:#a0a0a0}
+    .acc-badge{display:inline-block;margin-top:7px;background:rgba(243,112,33,.15);color:#f37021;font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px}
+
+    .acc-nav{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:8px;overflow:hidden}
+    .acc-nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13px;color:#a0a0a0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+    .acc-nav-item:last-child{border-bottom:none}
+    .acc-nav-item:hover{background:#1a1a1a;color:#f0f0f0;padding-left:18px}
+    .acc-nav-item.active{background:#1a1a1a;color:#f37021;border-left-color:#f37021}
+    .acc-nav-item.danger{color:#ff6b6b}
+    .acc-nav-item.danger:hover{background:rgba(224,49,49,.08)}
+    .acc-nav-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center}
+    .acc-nav-badge{margin-left:auto;background:#f37021;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;display:none}
+
+    /* ===== MAIN CONTENT ===== */
+    .acc-main{flex:1;min-width:0}
     .acc-section{display:none}
     .acc-section.active{display:block}
-    .acc-title{font-family:var(--font-display);font-size:36px;margin-bottom:4px}
-    .acc-subtitle{color:var(--text2);font-size:14px;margin-bottom:28px}
-    .ov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
-    .ov-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-    .ov-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px}
-    .ov-val{font-family:var(--font-display);font-size:34px;line-height:1}
-    .order-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
-    .order-card-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
-    .order-ref-id{font-size:13px;font-weight:700}
-    .order-date-small{font-size:11px;color:var(--text2);margin-top:2px}
-    .sbadge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-    .s-paid{background:rgba(0,200,100,.12);color:#00c864}
-    .s-confirmed{background:rgba(0,113,227,.12);color:var(--accent2)}
-    .s-shipped{background:rgba(255,165,0,.12);color:#ffa500}
-    .s-delivered{background:rgba(0,200,100,.2);color:#00c864}
-    .s-cancelled{background:rgba(224,49,49,.12);color:#ff6b6b}
-    .order-items-mini{display:flex;gap:8px;padding:12px 18px;flex-wrap:wrap}
-    .order-mini-img{width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:var(--bg4)}
-    .order-footer{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-top:1px solid var(--border)}
-    .track-wrap{padding:18px}
-    .track-steps{display:flex;align-items:flex-start}
+    .acc-card{background:#141414;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:22px;margin-bottom:16px}
+    .acc-card-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+    /* OVERVIEW */
+    .ov-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .ov-stat{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px;text-align:center}
+    .ov-stat-val{font-family:'Bebas Neue',sans-serif;font-size:34px;color:#f37021;line-height:1;margin-bottom:3px}
+    .ov-stat-label{font-size:9px;font-weight:700;letter-spacing:2px;color:#a0a0a0;text-transform:uppercase}
+    .ov-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ov-action-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.07);border-radius:6px;font-size:13px;font-weight:500;color:#a0a0a0;cursor:pointer;transition:all .2s}
+    .ov-action-btn:hover{border-color:rgba(243,112,33,.4);color:#f37021;background:#222}
+
+    /* ORDERS */
+    .order-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;margin-bottom:12px;overflow:hidden}
+    .order-card-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap;gap:6px}
+    .order-ref{font-size:12px;font-weight:700}
+    .order-date{font-size:10px;color:#a0a0a0;margin-top:2px}
+    .order-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+    .s-paid{background:rgba(0,200,100,.1);color:#00c864}
+    .s-confirmed{background:rgba(0,113,227,.1);color:#0071e3}
+    .s-shipped{background:rgba(255,165,0,.1);color:#ffa500}
+    .s-delivered{background:rgba(0,200,100,.18);color:#00c864}
+    .s-cancelled{background:rgba(224,49,49,.1);color:#ff6b6b}
+    .order-imgs{display:flex;gap:6px;padding:10px 14px;flex-wrap:wrap}
+    .order-mini-img{width:44px;height:44px;object-fit:cover;border-radius:5px;border:1px solid rgba(255,255,255,0.07);background:#222}
+    .order-footer{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid rgba(255,255,255,0.05)}
+    .order-total{font-size:14px;font-weight:700;color:#f37021}
+    .order-addr{font-size:10px;color:#a0a0a0;text-align:right;max-width:180px}
+
+    /* TRACKING */
+    .track-steps{display:flex;align-items:flex-start;margin:12px 0 8px}
     .track-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
-    .track-step::before{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+    .track-step::before{content:'';position:absolute;top:12px;left:50%;width:100%;height:2px;background:rgba(255,255,255,0.07);z-index:0}
     .track-step:last-child::before{display:none}
-    .track-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:var(--bg4);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;font-size:11px;transition:all .3s}
-    .track-dot.done{background:var(--accent);border-color:var(--accent);color:#fff}
+    .track-dot{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);background:#1e1e1e;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;font-size:10px;transition:all .3s}
+    .track-dot.done{background:#f37021;border-color:#f37021;color:#fff}
     .track-dot.current{background:#ffa500;border-color:#ffa500;color:#fff;animation:tpulse 1.5s infinite}
     @keyframes tpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,165,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,165,0,0)}}
-    .track-lbl{font-size:10px;color:var(--text2);margin-top:6px;text-align:center;font-weight:500}
-    .track-lbl.done{color:var(--accent2)}
+    .track-lbl{font-size:9px;color:#a0a0a0;margin-top:4px;text-align:center;font-weight:500}
+    .track-lbl.done{color:#f37021}
     .track-lbl.current{color:#ffa500}
-    .wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
-    .wl-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:relative;transition:all var(--transition)}
-    .wl-card:hover{transform:translateY(-4px);border-color:rgba(0,113,227,.4)}
-    .wl-rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:none;color:#ff6b6b;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;z-index:2}
-    .wl-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--bg4);cursor:pointer}
-    .wl-info{padding:12px}
-    .wl-name{font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.4}
-    .wl-price{font-size:15px;font-weight:700;margin-bottom:8px}
-    .wl-add{width:100%;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:background var(--transition)}
-    .wl-add:hover{background:var(--accent2)}
-    .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:20px}
-    .addr-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative}
-    .addr-card.default{border-color:var(--accent)}
-    .addr-card.default::after{content:'DEFAULT';position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
-    .addr-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--accent2);text-transform:uppercase;margin-bottom:6px}
-    .addr-name{font-size:14px;font-weight:600;margin-bottom:4px}
-    .addr-text{font-size:13px;color:var(--text2);line-height:1.6}
-    .scard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
-    .scard-title{font-size:15px;font-weight:700;margin-bottom:18px}
-    .acc-empty{text-align:center;padding:60px 20px}
-    .acc-empty .ee{font-size:50px;margin-bottom:14px}
-    .acc-empty h3{font-size:19px;margin-bottom:8px}
-    .acc-empty p{color:var(--text2);margin-bottom:20px}
-    @media(max-width:900px){.account-layout{grid-template-columns:1fr}.account-sidebar{border-right:none;border-bottom:1px solid var(--border)}.acc-nav{display:flex;overflow-x:auto;padding:8px;gap:4px}.acc-nav a{white-space:nowrap;flex-shrink:0}.profile-card{display:flex;align-items:center;gap:14px;text-align:left}.acc-main{padding:20px}.ov-grid{grid-template-columns:repeat(2,1fr)}}
+
+    /* WISHLIST */
+    .wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+    .wl-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;position:relative;transition:all .2s}
+    .wl-card:hover{transform:translateY(-3px);border-color:rgba(243,112,33,.3)}
+    .wl-rm{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);border:none;color:#ff6b6b;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:2}
+    .wl-img{width:100%;aspect-ratio:1;object-fit:cover;background:#222;cursor:pointer}
+    .wl-info{padding:9px}
+    .wl-name{font-size:11px;font-weight:500;margin-bottom:5px;line-height:1.4}
+    .wl-price{font-size:13px;font-weight:700;color:#f37021;margin-bottom:7px}
+    .wl-add{width:100%;padding:6px;background:#f37021;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+    .wl-add:hover{background:#e06010}
+
+    /* ADDRESSES */
+    .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+    .addr-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px;position:relative}
+    .addr-card.default{border-color:rgba(243,112,33,.4)}
+    .addr-card.default::after{content:'DEFAULT';position:absolute;top:8px;right:8px;background:#f37021;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:1px}
+    .addr-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:#f37021;text-transform:uppercase;margin-bottom:4px}
+    .addr-name{font-size:13px;font-weight:600;margin-bottom:2px}
+    .addr-text{font-size:11px;color:#a0a0a0;line-height:1.6}
+
+    /* SETTINGS */
+    .settings-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:18px;margin-bottom:12px}
+    .settings-card-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+    /* FORMS */
+    .form-group{margin-bottom:13px}
+    .form-group label{display:block;font-size:10px;font-weight:600;color:#a0a0a0;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+    .form-group input,.form-group select,.form-group textarea{width:100%;background:#222;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;outline:none;transition:border-color .2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#f37021;box-shadow:0 0 0 2px rgba(243,112,33,.15)}
+    .form-group input:disabled{opacity:.5;cursor:not-allowed}
+    .form-group select option{background:#222}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* BUTTONS */
+    .btn-primary{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#f37021;color:#fff;border:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-primary:hover{background:#e06010;transform:translateY(-1px)}
+    .btn-outline{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:transparent;color:#f0f0f0;border:1px solid rgba(255,255,255,0.12);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+    .btn-outline:hover{border-color:rgba(243,112,33,.4);color:#f37021}
+    .btn-danger{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:transparent;color:#ff6b6b;border:1px solid rgba(224,49,49,.3);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+    .btn-danger:hover{background:rgba(224,49,49,.1)}
+
+    /* EMPTY */
+    .acc-empty{text-align:center;padding:44px 20px}
+    .acc-empty-icon{font-size:48px;margin-bottom:12px}
+    .acc-empty h3{font-size:17px;margin-bottom:6px}
+    .acc-empty p{color:#a0a0a0;margin-bottom:16px;font-size:13px}
+
+    /* LOADING */
+    .loading-spinner{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px;color:#a0a0a0}
+    .spinner{width:26px;height:26px;border:3px solid rgba(255,255,255,.07);border-top-color:#f37021;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:22px;right:22px;background:#1e1e1e;border:1px solid rgba(255,255,255,.07);border-left:3px solid #f37021;padding:10px 14px;border-radius:4px;font-size:12px;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s;max-width:240px;pointer-events:none}
+    .toast.show{transform:translateY(0);opacity:1}
+
+    /* AUTH LOADING */
+    #authLoading{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:14px}
+
+    /* FOOTER */
+    .footer{background:#111;border-top:1px solid rgba(255,255,255,.06);margin-top:36px;padding:18px 0}
+    .footer-bottom{max-width:1380px;margin:0 auto;padding:0 16px;text-align:center;font-size:11px;color:#666}
+
+    /* RESPONSIVE */
+    @media(max-width:600px){
+      .nav-inner{flex-wrap:wrap;gap:8px}
+      .search-wrap{order:3;flex:1 1 100%}
+      .ov-stats{grid-template-columns:repeat(2,1fr)}
+      .ov-actions{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+      .wl-grid{grid-template-columns:repeat(2,1fr)}
+      .addr-grid{grid-template-columns:1fr}
+      .pw{padding:12px 12px 32px}
+    }
   </style>
 </head>
 <body>
+
+<!-- OVERLAY for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- NAVBAR -->
 <header class="navbar">
-  <div class="nav-top">
-    <a href="index.html" class="logo-wrap"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/><span class="logo-text">Tavikmart</span></a>
-    <div class="search-bar"><input type="text" placeholder="Search products..." id="searchInput"/><button class="search-btn" onclick="handleSearch()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button></div>
-    <div class="nav-actions">
-      <a href="account.html" class="nav-btn" id="authBtn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="authLabel">Account</span></a>
-      <a href="cart.html" class="nav-btn cart-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count" id="cartCount">0</span></a>
-      <a href="dashboard.html" class="nav-btn" id="adminBtn" style="display:none"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></a>
+  <div class="nav-inner">
+    <!-- Hamburger toggle -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar">
+      <span class="toggle-bar"></span>
+      <span class="toggle-bar"></span>
+      <span class="toggle-bar"></span>
+    </button>
+
+    <a href="index.html"><img src="assets/logo.png" alt="Tavikmart" class="logo-img"/></a>
+
+    <div class="search-wrap">
+      <input type="text" class="search-field" placeholder="Search products..." id="searchInput"/>
+      <button class="search-go" onclick="handleSearch()">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </div>
+
+    <div class="nav-right">
+      <a href="index.html" class="nav-icon-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="cart.html" class="nav-icon-btn" style="position:relative">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart</span>
+        <div class="nav-cart-badge" id="cartCount">0</div>
+      </a>
+      <a href="dashboard.html" class="nav-icon-btn" id="adminBtn" style="display:none">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
     </div>
   </div>
 </header>
 
-<div id="authLoading" style="display:flex;align-items:center;justify-content:center;min-height:70vh;flex-direction:column;gap:16px"><div class="spinner"></div><p style="color:var(--text2)">Loading your account...</p></div>
+<!-- AUTH LOADING -->
+<div id="authLoading">
+  <div class="spinner"></div>
+  <p style="color:#a0a0a0;font-size:13px">Loading your account...</p>
+</div>
 
+<!-- ACCOUNT WRAP -->
 <div id="accountWrap" style="display:none">
-  <div class="account-layout">
-    <aside class="account-sidebar">
-      <div class="profile-card">
-        <div class="avatar-wrap">
-          <img src="assets/placeholder.png" alt="Avatar" class="avatar" id="userAvatar" onerror="this.src='assets/placeholder.png'"/>
-          <div class="avatar-edit">
-            <input type="file" accept="image/*" onchange="uploadAvatar(this)"/>
-            <svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </div>
-        </div>
-        <p class="profile-name" id="sidebarName">—</p>
-        <p class="profile-email" id="sidebarEmail">—</p>
-        <span class="profile-badge">MEMBER</span>
-      </div>
-      <nav class="acc-nav">
-        <a class="active" onclick="switchTab('overview',this)">🏠 Overview</a>
-        <a onclick="switchTab('orders',this)">📦 My Orders</a>
-        <a onclick="switchTab('tracking',this)">🚚 Track Orders</a>
-        <a onclick="switchTab('wishlist',this)">❤️ Wishlist <span id="wlBadge" style="background:var(--accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"></span></a>
-        <a onclick="switchTab('addresses',this)">📍 Saved Addresses</a>
-        <a onclick="switchTab('settings',this)">⚙️ Settings</a>
-        <a onclick="doSignOut()" style="color:#ff6b6b;margin-top:8px">🚪 Sign Out</a>
-      </nav>
-    </aside>
+  <div class="pw">
+    <div class="acc-layout">
 
-    <main class="acc-main">
-      <!-- OVERVIEW -->
-      <div class="acc-section active" id="tab-overview">
-        <h1 class="acc-title" id="overviewGreeting">Hello!</h1>
-        <p class="acc-subtitle">Your account at a glance</p>
-        <div class="ov-grid">
-          <div class="ov-card"><p class="ov-label">Orders</p><p class="ov-val" id="ovOrders">—</p></div>
-          <div class="ov-card"><p class="ov-label">Wishlist</p><p class="ov-val" id="ovWishlist">—</p></div>
-          <div class="ov-card"><p class="ov-label">Total Spent</p><p class="ov-val" id="ovSpent">—</p></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button class="btn btn-primary" onclick="switchTab('orders',null)">📦 My Orders</button>
-          <button class="btn btn-outline" onclick="switchTab('wishlist',null)">❤️ Wishlist</button>
-          <button class="btn btn-outline" onclick="switchTab('tracking',null)">🚚 Track Package</button>
-          <a href="shop.html" class="btn btn-outline" style="text-align:center">🛍️ Continue Shopping</a>
-        </div>
-      </div>
-
-      <!-- ORDERS -->
-      <div class="acc-section" id="tab-orders">
-        <h1 class="acc-title">My Orders</h1>
-        <p class="acc-subtitle">All your past and current orders</p>
-        <div id="ordersListWrap"><div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div></div>
-      </div>
-
-      <!-- TRACKING -->
-      <div class="acc-section" id="tab-tracking">
-        <h1 class="acc-title">Track Orders</h1>
-        <p class="acc-subtitle">Live delivery status for your orders</p>
-        <div id="trackingListWrap"><div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div></div>
-      </div>
-
-      <!-- WISHLIST -->
-      <div class="acc-section" id="tab-wishlist">
-        <h1 class="acc-title">My Wishlist</h1>
-        <p class="acc-subtitle">Products saved for later ❤️</p>
-        <div id="wishlistWrap"></div>
-      </div>
-
-      <!-- ADDRESSES -->
-      <div class="acc-section" id="tab-addresses">
-        <h1 class="acc-title">Saved Addresses</h1>
-        <p class="acc-subtitle">Manage your delivery addresses</p>
-        <div class="addr-grid" id="addrGrid"></div>
-        <div class="scard">
-          <p class="scard-title">➕ Add New Address</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div class="form-group"><label>Full Name</label><input type="text" id="addrName" placeholder="John Doe"/></div>
-            <div class="form-group"><label>Phone</label><input type="text" id="addrPhone" placeholder="080XXXXXXXX"/></div>
-          </div>
-          <div class="form-group"><label>Street Address</label><input type="text" id="addrStreet" placeholder="123 Main Street"/></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div class="form-group"><label>City</label><input type="text" id="addrCity" placeholder="Lagos"/></div>
-            <div class="form-group"><label>State</label>
-              <select id="addrState"><option value="">Select State</option><option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option></select>
+      <!-- SIDEBAR -->
+      <aside class="acc-sidebar" id="accSidebar">
+        <div class="acc-profile-card">
+          <div class="acc-avatar-wrap">
+            <img src="assets/placeholder.png" alt="Avatar" class="acc-avatar" id="userAvatar" onerror="this.src='assets/placeholder.png'"/>
+            <div class="acc-avatar-edit">
+              <input type="file" accept="image/*" onchange="uploadAvatar(this)"/>
+              <svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </div>
           </div>
-          <button class="btn btn-primary" onclick="saveAddress()">Save Address</button>
+          <p class="acc-name" id="sidebarName">—</p>
+          <p class="acc-email" id="sidebarEmail">—</p>
+          <span class="acc-badge">MEMBER</span>
         </div>
-      </div>
 
-      <!-- SETTINGS -->
-      <div class="acc-section" id="tab-settings">
-        <h1 class="acc-title">Settings</h1>
-        <p class="acc-subtitle">Manage your profile and security</p>
-        <div class="scard">
-          <p class="scard-title">👤 Personal Info</p>
-          <div class="form-group"><label>Full Name</label><input type="text" id="settingsName" placeholder="Your name"/></div>
-          <div class="form-group"><label>Email (cannot change)</label><input type="email" id="settingsEmail" disabled style="opacity:.5"/></div>
-          <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+        <nav class="acc-nav">
+          <div class="acc-nav-item active" onclick="switchTab('overview',this)"><span class="acc-nav-icon">🏠</span> Overview</div>
+          <div class="acc-nav-item" onclick="switchTab('orders',this)"><span class="acc-nav-icon">📦</span> My Orders</div>
+          <div class="acc-nav-item" onclick="switchTab('tracking',this)"><span class="acc-nav-icon">🚚</span> Track Orders</div>
+          <div class="acc-nav-item" onclick="switchTab('wishlist',this)">
+            <span class="acc-nav-icon">❤️</span> Wishlist
+            <span class="acc-nav-badge" id="wlBadge"></span>
+          </div>
+          <div class="acc-nav-item" onclick="switchTab('addresses',this)"><span class="acc-nav-icon">📍</span> Addresses</div>
+          <div class="acc-nav-item" onclick="switchTab('settings',this)"><span class="acc-nav-icon">⚙️</span> Settings</div>
+          <div class="acc-nav-item danger" onclick="doSignOut()"><span class="acc-nav-icon">🚪</span> Sign Out</div>
+        </nav>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="acc-main">
+
+        <!-- OVERVIEW -->
+        <div class="acc-section active" id="tab-overview">
+          <div class="acc-card">
+            <h2 class="acc-card-title">🏠 <span id="overviewGreeting">Hello!</span></h2>
+            <p style="color:#a0a0a0;font-size:13px;margin-bottom:18px">Your account at a glance</p>
+            <div class="ov-stats">
+              <div class="ov-stat"><div class="ov-stat-val" id="ovOrders">—</div><div class="ov-stat-label">Orders</div></div>
+              <div class="ov-stat"><div class="ov-stat-val" id="ovWishlist">—</div><div class="ov-stat-label">Wishlist</div></div>
+              <div class="ov-stat"><div class="ov-stat-val" id="ovSpent">—</div><div class="ov-stat-label">Total Spent</div></div>
+            </div>
+            <div class="ov-actions">
+              <div class="ov-action-btn" onclick="switchTab('orders',null)">📦 My Orders</div>
+              <div class="ov-action-btn" onclick="switchTab('wishlist',null)">❤️ Wishlist</div>
+              <div class="ov-action-btn" onclick="switchTab('tracking',null)">🚚 Track Package</div>
+              <a href="shop.html" class="ov-action-btn">🛍️ Continue Shopping</a>
+            </div>
+          </div>
         </div>
-        <div class="scard">
-          <p class="scard-title">🔒 Change Password</p>
-          <div class="form-group"><label>New Password</label><input type="password" id="newPw" placeholder="Min 6 characters"/></div>
-          <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Repeat password"/></div>
-          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+
+        <!-- ORDERS -->
+        <div class="acc-section" id="tab-orders">
+          <div class="acc-card">
+            <h2 class="acc-card-title">📦 My Orders</h2>
+            <div id="ordersListWrap"><div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div></div>
+          </div>
         </div>
-        <div class="scard" style="border-color:rgba(224,49,49,.3)">
-          <p class="scard-title" style="color:#ff6b6b">⚠️ Danger Zone</p>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:14px">This will sign you out of your account.</p>
-          <button class="btn btn-danger" onclick="doSignOut()">Sign Out</button>
+
+        <!-- TRACKING -->
+        <div class="acc-section" id="tab-tracking">
+          <div class="acc-card">
+            <h2 class="acc-card-title">🚚 Track Orders</h2>
+            <div id="trackingListWrap"><div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div></div>
+          </div>
         </div>
-      </div>
-    </main>
+
+        <!-- WISHLIST -->
+        <div class="acc-section" id="tab-wishlist">
+          <div class="acc-card">
+            <h2 class="acc-card-title">❤️ My Wishlist</h2>
+            <div id="wishlistWrap"></div>
+          </div>
+        </div>
+
+        <!-- ADDRESSES -->
+        <div class="acc-section" id="tab-addresses">
+          <div class="acc-card">
+            <h2 class="acc-card-title">📍 Saved Addresses</h2>
+            <div class="addr-grid" id="addrGrid"></div>
+            <div class="settings-card">
+              <p class="settings-card-title">➕ Add New Address</p>
+              <div class="form-row">
+                <div class="form-group"><label>Full Name</label><input type="text" id="addrName" placeholder="John Doe"/></div>
+                <div class="form-group"><label>Phone</label><input type="text" id="addrPhone" placeholder="080XXXXXXXX"/></div>
+              </div>
+              <div class="form-group"><label>Street Address</label><input type="text" id="addrStreet" placeholder="123 Main Street"/></div>
+              <div class="form-row">
+                <div class="form-group"><label>City</label><input type="text" id="addrCity" placeholder="Lagos"/></div>
+                <div class="form-group"><label>State</label>
+                  <select id="addrState"><option value="">Select State</option><option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option></select>
+                </div>
+              </div>
+              <button class="btn-primary" onclick="saveAddress()">Save Address</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="acc-section" id="tab-settings">
+          <div class="acc-card">
+            <h2 class="acc-card-title">⚙️ Settings</h2>
+            <div class="settings-card">
+              <p class="settings-card-title">👤 Personal Info</p>
+              <div class="form-group"><label>Full Name</label><input type="text" id="settingsName" placeholder="Your name"/></div>
+              <div class="form-group"><label>Email</label><input type="email" id="settingsEmail" disabled/></div>
+              <button class="btn-primary" onclick="updateProfile()">Save Changes</button>
+            </div>
+            <div class="settings-card">
+              <p class="settings-card-title">🔒 Change Password</p>
+              <div class="form-group"><label>New Password</label><input type="password" id="newPw" placeholder="Min 6 characters"/></div>
+              <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Repeat password"/></div>
+              <button class="btn-primary" onclick="changePassword()">Update Password</button>
+            </div>
+            <div class="settings-card" style="border-color:rgba(224,49,49,.2)">
+              <p class="settings-card-title" style="color:#ff6b6b">⚠️ Danger Zone</p>
+              <p style="font-size:12px;color:#a0a0a0;margin-bottom:12px">This will sign you out of your account.</p>
+              <button class="btn-danger" onclick="doSignOut()">Sign Out</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
   </div>
 </div>
+
+<footer class="footer">
+  <div class="footer-bottom">© 2025 Tavikmart. Built by <span style="color:#f37021">DEVGODSWILL</span>. All rights reserved.</div>
+</footer>
 
 <script src="js/firebase-config.js"></script>
 <script src="js/cart.js"></script>
 <script>
   let currentUser = null;
+  const isMobile = () => window.innerWidth <= 768;
 
+  // ===== SIDEBAR TOGGLE =====
+  function toggleSidebar() {
+    const sidebar = document.getElementById('accSidebar');
+    const btn = document.getElementById('sidebarToggleBtn');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (isMobile()) {
+      // Mobile: slide in/out as drawer
+      const isOpen = sidebar.classList.contains('mobile-open');
+      if (isOpen) {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('show');
+        btn.classList.remove('open');
+      } else {
+        sidebar.classList.add('mobile-open');
+        overlay.classList.add('show');
+        btn.classList.add('open');
+      }
+    } else {
+      // Desktop: collapse/expand
+      const isHidden = sidebar.classList.contains('hidden');
+      if (isHidden) {
+        sidebar.classList.remove('hidden');
+        btn.classList.remove('open');
+      } else {
+        sidebar.classList.add('hidden');
+        btn.classList.add('open');
+      }
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.getElementById('accSidebar');
+    const btn = document.getElementById('sidebarToggleBtn');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('show');
+    btn.classList.remove('open');
+  }
+
+  // Close sidebar on resize to desktop
+  window.addEventListener('resize', () => {
+    if (!isMobile()) {
+      document.getElementById('sidebarOverlay').classList.remove('show');
+      document.getElementById('accSidebar').classList.remove('mobile-open');
+    }
+  });
+
+  // ===== AUTH =====
   auth.onAuthStateChanged(async user => {
     if (!user) { window.location.href = 'auth.html'; return; }
     currentUser = user;
     document.getElementById('authLoading').style.display = 'none';
     document.getElementById('accountWrap').style.display = 'block';
+
     const name = user.displayName || user.email.split('@')[0];
     document.getElementById('sidebarName').textContent = name;
     document.getElementById('sidebarEmail').textContent = user.email;
@@ -229,23 +491,29 @@
     document.getElementById('settingsName').value = name;
     document.getElementById('settingsEmail').value = user.email;
     if (user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+
     const wl = JSON.parse(localStorage.getItem('tavik_wishlist') || '[]');
     const wlBadge = document.getElementById('wlBadge');
-    if (wlBadge && wl.length > 0) wlBadge.textContent = wl.length;
+    if (wl.length > 0) { wlBadge.textContent = wl.length; wlBadge.style.display = 'inline'; }
+
     loadOverview(user.uid);
   });
 
+  // ===== SWITCH TAB =====
   function switchTab(name, el) {
     document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
-    document.querySelectorAll('.acc-nav a').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.acc-nav-item').forEach(a => a.classList.remove('active'));
     if (el) el.classList.add('active');
+    // Auto close on mobile after picking a tab
+    if (isMobile()) closeSidebar();
     if (name === 'orders') loadOrders();
     if (name === 'tracking') loadTracking();
     if (name === 'wishlist') loadWishlist();
     if (name === 'addresses') loadAddresses();
   }
 
+  // ===== OVERVIEW =====
   async function loadOverview(uid) {
     try {
       const snap = await db.collection('orders').where('userId', '==', uid).get();
@@ -257,71 +525,83 @@
     } catch(e) {}
   }
 
+  // ===== ORDERS =====
   async function loadOrders() {
     const wrap = document.getElementById('ordersListWrap');
     wrap.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div>';
     try {
       const snap = await db.collection('orders').where('userId','==',currentUser.uid).orderBy('createdAt','desc').get();
-      if (snap.empty) { wrap.innerHTML = `<div class="acc-empty"><div class="ee">📦</div><h3>No orders yet</h3><p>You haven't placed any orders.</p><a href="shop.html" class="btn btn-primary">Start Shopping</a></div>`; return; }
+      if (snap.empty) {
+        wrap.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">📦</div><h3>No orders yet</h3><p>You haven't placed any orders.</p><a href="shop.html" class="btn-primary">Start Shopping</a></div>`;
+        return;
+      }
       wrap.innerHTML = snap.docs.map(doc => {
         const o = doc.data();
         const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : '—';
         return `<div class="order-card">
           <div class="order-card-head">
-            <div><p class="order-ref-id">Order #${doc.id.slice(0,8).toUpperCase()}</p><p class="order-date-small">${date}</p></div>
-            <span class="sbadge s-${o.status||'paid'}">${o.status||'paid'}</span>
+            <div><p class="order-ref">Order #${doc.id.slice(0,8).toUpperCase()}</p><p class="order-date">${date}</p></div>
+            <span class="order-status-badge s-${o.status||'paid'}">${o.status||'paid'}</span>
           </div>
-          <div class="order-items-mini">${(o.items||[]).map(i=>`<img class="order-mini-img" src="${i.image||'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'" title="${i.name}"/>`).join('')}</div>
-          <div class="order-footer"><p style="font-size:15px;font-weight:700">₦${Number(o.total).toLocaleString()}</p><p style="font-size:11px;color:var(--text2);text-align:right;max-width:220px">${o.address||'—'}</p></div>
+          <div class="order-imgs">${(o.items||[]).map(i=>`<img class="order-mini-img" src="${i.image||'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'" title="${i.name}"/>`).join('')}</div>
+          <div class="order-footer"><span class="order-total">₦${Number(o.total).toLocaleString()}</span><p class="order-addr">${o.address||'—'}</p></div>
         </div>`;
       }).join('');
-    } catch(err) { wrap.innerHTML = `<div class="acc-empty"><h3>Error: ${err.message}</h3></div>`; }
+    } catch(err) { wrap.innerHTML = `<div class="acc-empty"><h3 style="color:#ff6b6b">Error: ${err.message}</h3></div>`; }
   }
 
+  // ===== TRACKING =====
   async function loadTracking() {
     const wrap = document.getElementById('trackingListWrap');
     wrap.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div>';
     try {
       const snap = await db.collection('orders').where('userId','==',currentUser.uid).orderBy('createdAt','desc').get();
-      if (snap.empty) { wrap.innerHTML = `<div class="acc-empty"><div class="ee">🚚</div><h3>No orders to track</h3><p>Place an order first!</p><a href="shop.html" class="btn btn-primary">Shop Now</a></div>`; return; }
+      if (snap.empty) {
+        wrap.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">🚚</div><h3>No orders to track</h3><p>Place an order first!</p><a href="shop.html" class="btn-primary">Shop Now</a></div>`;
+        return;
+      }
       const steps = ['paid','confirmed','shipped','delivered'];
-      const labels = ['Order Placed','Confirmed','Shipped','Delivered'];
+      const labels = ['Placed','Confirmed','Shipped','Delivered'];
       wrap.innerHTML = snap.docs.map(doc => {
         const o = doc.data();
         const cur = steps.indexOf(o.status||'paid');
         const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        return `<div class="order-card" style="margin-bottom:16px">
+        return `<div class="order-card" style="margin-bottom:12px">
           <div class="order-card-head">
-            <div><p class="order-ref-id">Order #${doc.id.slice(0,8).toUpperCase()}</p><p class="order-date-small">Placed: ${date}</p></div>
-            <span class="sbadge s-${o.status||'paid'}">${o.status||'paid'}</span>
+            <div><p class="order-ref">Order #${doc.id.slice(0,8).toUpperCase()}</p><p class="order-date">Placed: ${date}</p></div>
+            <span class="order-status-badge s-${o.status||'paid'}">${o.status||'paid'}</span>
           </div>
-          <div class="track-wrap">
+          <div style="padding:14px">
             <div class="track-steps">
               ${steps.map((s,i)=>`<div class="track-step">
                 <div class="track-dot ${i<cur?'done':i===cur?'current':''}">${i<cur?'✓':i===cur?'●':''}</div>
                 <p class="track-lbl ${i<cur?'done':i===cur?'current':''}">${labels[i]}</p>
               </div>`).join('')}
             </div>
-            ${o.status==='shipped'?`<p style="font-size:12px;color:#ffa500;margin-top:10px">📦 On the way! Est. delivery: 2–5 business days.</p>`:''}
-            ${o.status==='delivered'?`<p style="font-size:12px;color:#00c864;margin-top:10px">🎉 Your order has been delivered!</p>`:''}
+            ${o.status==='shipped'?`<p style="font-size:11px;color:#ffa500;margin-top:6px">📦 On the way! Est. 2–5 business days.</p>`:''}
+            ${o.status==='delivered'?`<p style="font-size:11px;color:#00c864;margin-top:6px">🎉 Your order has been delivered!</p>`:''}
           </div>
-          <div class="order-footer"><p style="font-size:12px;color:var(--text2)">Ref: ${o.paystackRef||'—'}</p><p style="font-weight:700">₦${Number(o.total).toLocaleString()}</p></div>
+          <div class="order-footer"><p style="font-size:10px;color:#a0a0a0">Ref: ${o.paystackRef||'—'}</p><span class="order-total">₦${Number(o.total).toLocaleString()}</span></div>
         </div>`;
       }).join('');
-    } catch(err) { wrap.innerHTML = `<div class="acc-empty"><h3>Error: ${err.message}</h3></div>`; }
+    } catch(err) { wrap.innerHTML = `<div class="acc-empty"><h3 style="color:#ff6b6b">Error: ${err.message}</h3></div>`; }
   }
 
+  // ===== WISHLIST =====
   function loadWishlist() {
     const wrap = document.getElementById('wishlistWrap');
     const wl = JSON.parse(localStorage.getItem('tavik_wishlist')||'[]');
-    if (wl.length===0) { wrap.innerHTML = `<div class="acc-empty"><div class="ee">❤️</div><h3>Wishlist is empty</h3><p>Save products you love and buy them later.</p><a href="shop.html" class="btn btn-primary">Browse Products</a></div>`; return; }
+    if (wl.length === 0) {
+      wrap.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">❤️</div><h3>Wishlist is empty</h3><p>Save products you love.</p><a href="shop.html" class="btn-primary">Browse Products</a></div>`;
+      return;
+    }
     wrap.innerHTML = `<div class="wl-grid">${wl.map(item=>`
       <div class="wl-card">
         <button class="wl-rm" onclick="removeWishlist('${item.id}')">✕</button>
         <img class="wl-img" src="${item.image||'assets/placeholder.png'}" onerror="this.src='assets/placeholder.png'" onclick="window.location='product.html?id=${item.id}'"/>
         <div class="wl-info">
           <p class="wl-name">${item.name}</p>
-          <p class="wl-price">${formatPrice(item.price)}</p>
+          <p class="wl-price">₦${Number(item.price).toLocaleString()}</p>
           <button class="wl-add" onclick="Cart.add({id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}',price:${item.price},image:'${item.image||''}',category:'${item.category||''}'})">Add to Cart 🛒</button>
         </div>
       </div>`).join('')}</div>`;
@@ -334,100 +614,116 @@
     showToast('Removed from wishlist');
     loadWishlist();
     const badge = document.getElementById('wlBadge');
-    if (badge) badge.textContent = wl.length || '';
+    if (badge) { badge.textContent = wl.length||''; badge.style.display = wl.length?'inline':'none'; }
   }
 
+  // ===== ADDRESSES =====
   async function loadAddresses() {
     const grid = document.getElementById('addrGrid');
     try {
       const doc = await db.collection('users').doc(currentUser.uid).get();
       const addrs = doc.data()?.addresses || [];
-      if (addrs.length === 0) { grid.innerHTML = `<p style="color:var(--text2);font-size:14px;grid-column:1/-1">No saved addresses yet.</p>`; return; }
+      if (addrs.length === 0) { grid.innerHTML = `<p style="color:#a0a0a0;font-size:13px;grid-column:1/-1">No saved addresses yet.</p>`; return; }
       grid.innerHTML = addrs.map((a,i) => `
         <div class="addr-card ${i===0?'default':''}">
-          <p class="addr-lbl">${i===0?'🏠 Home':'📍 Address '+(i+1)}</p>
+          <p class="addr-label">${i===0?'🏠 Home':'📍 Address '+(i+1)}</p>
           <p class="addr-name">${a.name}</p>
           <p class="addr-text">${a.street}, ${a.city}, ${a.state}</p>
           <p class="addr-text">📞 ${a.phone}</p>
-          <div style="margin-top:12px"><button class="btn btn-danger" style="padding:6px 14px;font-size:12px" onclick="deleteAddress(${i})">Remove</button></div>
+          <div style="margin-top:10px"><button class="btn-danger" style="padding:5px 12px;font-size:11px" onclick="deleteAddress(${i})">Remove</button></div>
         </div>`).join('');
     } catch(err) { grid.innerHTML = `<p style="color:#ff6b6b">${err.message}</p>`; }
   }
 
   async function saveAddress() {
-    const name = document.getElementById('addrName').value.trim();
-    const phone = document.getElementById('addrPhone').value.trim();
-    const street = document.getElementById('addrStreet').value.trim();
-    const city = document.getElementById('addrCity').value.trim();
-    const state = document.getElementById('addrState').value;
-    if (!name||!phone||!street||!city||!state) { showToast('Fill in all address fields','error'); return; }
-    try {
-      const ref = db.collection('users').doc(currentUser.uid);
-      const doc = await ref.get();
-      const existing = doc.data()?.addresses || [];
+    const name=document.getElementById('addrName').value.trim();
+    const phone=document.getElementById('addrPhone').value.trim();
+    const street=document.getElementById('addrStreet').value.trim();
+    const city=document.getElementById('addrCity').value.trim();
+    const state=document.getElementById('addrState').value;
+    if(!name||!phone||!street||!city||!state){showToast('Fill in all fields','error');return;}
+    try{
+      const ref=db.collection('users').doc(currentUser.uid);
+      const doc=await ref.get();
+      const existing=doc.data()?.addresses||[];
       existing.push({name,phone,street,city,state});
       await ref.set({addresses:existing},{merge:true});
       showToast('Address saved ✅');
       ['addrName','addrPhone','addrStreet','addrCity'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('addrState').value='';
       loadAddresses();
-    } catch(err) { showToast('Error: '+err.message,'error'); }
+    }catch(err){showToast('Error: '+err.message,'error');}
   }
 
   async function deleteAddress(index) {
-    try {
-      const ref = db.collection('users').doc(currentUser.uid);
-      const doc = await ref.get();
-      const addrs = doc.data()?.addresses || [];
+    try{
+      const ref=db.collection('users').doc(currentUser.uid);
+      const doc=await ref.get();
+      const addrs=doc.data()?.addresses||[];
       addrs.splice(index,1);
       await ref.set({addresses:addrs},{merge:true});
       showToast('Address removed');
       loadAddresses();
-    } catch(err) { showToast('Error: '+err.message,'error'); }
+    }catch(err){showToast('Error: '+err.message,'error');}
   }
 
+  // ===== SETTINGS =====
   async function updateProfile() {
-    const name = document.getElementById('settingsName').value.trim();
-    if (!name) { showToast('Enter your name','error'); return; }
-    try {
+    const name=document.getElementById('settingsName').value.trim();
+    if(!name){showToast('Enter your name','error');return;}
+    try{
       await currentUser.updateProfile({displayName:name});
       await db.collection('users').doc(currentUser.uid).set({name},{merge:true});
-      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('sidebarName').textContent=name;
       showToast('Profile updated ✅');
-    } catch(err) { showToast('Error: '+err.message,'error'); }
+    }catch(err){showToast('Error: '+err.message,'error');}
   }
 
   async function changePassword() {
-    const pw = document.getElementById('newPw').value;
-    const conf = document.getElementById('confirmPw').value;
-    if (pw.length < 6) { showToast('Password must be at least 6 characters','error'); return; }
-    if (pw !== conf) { showToast('Passwords do not match','error'); return; }
-    try {
+    const pw=document.getElementById('newPw').value;
+    const conf=document.getElementById('confirmPw').value;
+    if(pw.length<6){showToast('Min 6 characters','error');return;}
+    if(pw!==conf){showToast('Passwords do not match','error');return;}
+    try{
       await currentUser.updatePassword(pw);
       document.getElementById('newPw').value='';
       document.getElementById('confirmPw').value='';
       showToast('Password updated ✅');
-    } catch(err) { showToast('Error: '+err.message,'error'); }
+    }catch(err){showToast('Error: '+err.message,'error');}
   }
 
   async function uploadAvatar(input) {
-    const file = input.files[0];
-    if (!file) return;
-    showToast('Uploading photo...');
-    try {
-      const fd = new FormData();
-      fd.append('file',file);
-      fd.append('upload_preset','Odegaard');
-      const res = await fetch('https://api.cloudinary.com/v1_1/dzxckgbzp/image/upload',{method:'POST',body:fd});
-      const data = await res.json();
+    const file=input.files[0];
+    if(!file)return;
+    showToast('Uploading...');
+    try{
+      const fd=new FormData();
+      fd.append('file',file);fd.append('upload_preset','Odegaard');
+      const res=await fetch('https://api.cloudinary.com/v1_1/dzxckgbzp/image/upload',{method:'POST',body:fd});
+      const data=await res.json();
       await currentUser.updateProfile({photoURL:data.secure_url});
-      document.getElementById('userAvatar').src = data.secure_url;
+      document.getElementById('userAvatar').src=data.secure_url;
       showToast('Photo updated ✅');
-    } catch(err) { showToast('Error: '+err.message,'error'); }
+    }catch(err){showToast('Error: '+err.message,'error');}
   }
 
   function doSignOut() {
     auth.signOut().then(()=>window.location.href='index.html');
+  }
+
+  function handleSearch() {
+    const q=document.getElementById('searchInput')?.value.trim();
+    if(q)window.location.href=`shop.html?q=${encodeURIComponent(q)}`;
+  }
+
+  function showToast(msg,type='success'){
+    let t=document.getElementById('globalToast');
+    if(!t){t=document.createElement('div');t.id='globalToast';t.className='toast';document.body.appendChild(t);}
+    t.textContent=msg;
+    t.style.borderLeftColor=type==='error'?'#e03131':'#f37021';
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer=setTimeout(()=>t.classList.remove('show'),3000);
   }
 </script>
 </body>
